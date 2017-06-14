@@ -25,17 +25,18 @@ ChoralStorm uses these technologies:
 ### Installation
 These installation steps will get a cluster running with one instance of Kafka, Storm, Cassandra
 1. Download [Apache Kafka], unzip in project directory
-2. Replace `$KAFKA_DIR/config/zookeeper.properties` and `$KAFKA_DIR/config/server.properties` with the ones found in this repository
-3. Download [Apache Storm], unzip in project directory
-4. Replace `$STORM_DIR/conf/storm.yaml` with the one found in this repository
-5. Download [Apache Cassandra], unzip in project directory
-6. Replace `$CASSANDRA_DIR/conf/cassandra.yaml` with the one found in this repository
-7. `$KAFKA_DIR/bin/zookeeper-server-start.sh config/zookeeper.properties`
-8. `$KAFKA_DIR/bin/kafka-server-start.sh config/server.properties`
-9. `$STORM_DIR/bin/storm nimbus`
-10. `$STORM_DIR/bin/storm supervisor`
-11. `$CASSANDRA_DIR/bin/cassandra`
-12. Create a table for Cassandra: `CREATE TABLE choraldatastream.raw_data (device_id int, data text, time timestamp, PRIMARY KEY ((device_id), time));`
+1. Replace `$KAFKA_DIR/config/zookeeper.properties` and `$KAFKA_DIR/config/server.properties` with the ones found in this repository
+1. Download [Apache Storm], unzip in project directory
+1. Replace `$STORM_DIR/conf/storm.yaml` with the one found in this repository
+1. Download [Apache Cassandra], unzip in project directory
+1. Replace `$CASSANDRA_DIR/conf/cassandra.yaml` with the one found in this repository
+1. `$KAFKA_DIR/bin/zookeeper-server-start.sh config/zookeeper.properties`
+1. `$KAFKA_DIR/bin/kafka-server-start.sh config/server.properties`
+1. `$KAFKA_DIR/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic TOPIC_NAME`
+1. `$STORM_DIR/bin/storm nimbus`
+1. `$STORM_DIR/bin/storm supervisor`
+1. `$CASSANDRA_DIR/bin/cassandra`
+1. Create a table for Cassandra: `CREATE TABLE choraldatastream.raw_data (device_id int, data text, time timestamp, PRIMARY KEY ((device_id), time));`
 
 At this point, everything should be set up and you can produce data with `ChoralProducer` and start a local Storm cluster 
 with `ChoralTopology`.

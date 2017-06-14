@@ -67,8 +67,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-   [Apache Kafka]: <http://http://kafka.apache.org/>
-   [Apache Storm]: <http://http://storm.apache.org/>
-   [Apache Cassandra]: <http://http://cassandra.apache.org/>
+   [Apache Kafka]: <http://kafka.apache.org/>
+   [Apache Storm]: <http://storm.apache.org/>
+   [Apache Cassandra]: <http://cassandra.apache.org/>
    [Redis]: <http://redis.io>
    [Go]: <http://golang.org>

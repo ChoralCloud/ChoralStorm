@@ -7,6 +7,13 @@ view can be used to retrieve live data from these IoT devices such as current va
 data storage can be used to make special queries such as "Give me all of the temperatures for device 1 ranging from 
 2015-2017".
 
+### How it works
+The architecture below shows how data is consumed by the user's devices. Each device will send a certain format
+defined by the Choral Protocol to a central endpoint. In this case, it is a single go server that essentially 
+relays the information to each "cluster". A cluster is composed of the following: HTTP Server, Kafka, Zookeeper, and Storm.
+The HTTP Server in the cluster listens for any request from the central endpoint and adds the message to the topic. Storm
+then computes the information, and stores the data in the real time view and persistent storage.
+
 ![](/architecture.png)
 
 ### Technologies
@@ -16,13 +23,14 @@ ChoralStorm uses these technologies:
 * [Apache Storm] - near real time data stream computation system
 * [Apache Cassandra] - persistent storage
 * [Redis] - real time cache
+* [Go] - "load balancing" server and endpoint for devices 
 
 ### Todo
  - Automate and containerize everything
  - Determine more insights on data stream
  - Figure out how to make custom queries
  
-### Installation
+### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Storm, Cassandra
 1. Download [Apache Kafka], unzip in project directory
 1. Replace `$KAFKA_DIR/config/zookeeper.properties` and `$KAFKA_DIR/config/server.properties` with the ones found in this repository
@@ -37,11 +45,11 @@ These installation steps will get a cluster running with one instance of Kafka, 
 1. `$STORM_DIR/bin/storm nimbus`
 1. `$STORM_DIR/bin/storm supervisor`
 1. `$CASSANDRA_DIR/bin/cassandra`
-1. Create a table for Cassandra: `CREATE TABLE choraldatastream.raw_data (device_id int, data text, time timestamp, PRIMARY KEY ((device_id), time));`
+1. Create a table for Cassandra: `CREATE TABLE choraldatastream.raw_data (device_id text, device_data text, device_timestamp timestamp, time timestamp, primary key((device_id),device_timestamp));`
 1. `$REDIS_DIR/src/redis_server` and `$REDIS_DIR/src/redis_client`
+1. Run `KafkaServer` and `ChoralTopology`
 
-At this point, everything should be set up and you can produce data with `ChoralProducer` and start a local Storm cluster 
-with `ChoralTopology`.
+At this point, everything should be set up and you can produce data with `main.go`.
 
 License
 ----
@@ -63,3 +71,4 @@ limitations under the License.
    [Apache Storm]: <http://http://storm.apache.org/>
    [Apache Cassandra]: <http://http://cassandra.apache.org/>
    [Redis]: <http://redis.io>
+   [Go]: <http://golang.org>

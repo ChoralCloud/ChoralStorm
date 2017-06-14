@@ -3,6 +3,7 @@ package computation;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.kafka.*;
+import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.utils.Utils;
@@ -19,6 +20,18 @@ public class ChoralTopology {
         KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
         //endregion
 
+        //region Redis creation
+        JedisPoolConfig poolConfig = new JedisPoolConfig.Builder().setHost("localhost").setPort(6379).build();
+        //endregion
+
+        /*
+        Topology
+        kafka -> choralBolt
+              -> cassandraBolt
+              -> choralAverageQuery -\
+              -------------------------> redisBolt
+         */
+
         //region Topology creation
         TopologyBuilder topologyBuilder = new TopologyBuilder();
         topologyBuilder.setSpout("kafkaSpout", kafkaSpout);
@@ -27,9 +40,10 @@ public class ChoralTopology {
         topologyBuilder.setBolt("cassandraBolt", new CassandraBolt())
                 .shuffleGrouping("kafkaSpout");
         topologyBuilder.setBolt("choralAverageQuery", new ChoralAverageQuery())
-                .shuffleGrouping("cassandraBolt");
-//        topologyBuilder.setBolt("redisBolt", new RedisBolt())
-//                .shuffleGrouping("choralAverageQuery");
+                .shuffleGrouping("kafkaSpout");
+        topologyBuilder.setBolt("redisBolt", new RedisBolt(poolConfig))
+                .shuffleGrouping("kafkaSpout")
+                .shuffleGrouping("choralAverageQuery");
         //endregion
 
         //region Local cluster

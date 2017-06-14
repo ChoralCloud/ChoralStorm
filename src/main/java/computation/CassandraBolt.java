@@ -47,7 +47,7 @@ public class CassandraBolt extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("deviceId"));
+        outputFieldsDeclarer.declare(new Fields("device_id"));
     }
 
     public Cluster getCluster() {

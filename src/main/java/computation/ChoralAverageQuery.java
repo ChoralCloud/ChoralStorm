@@ -37,8 +37,8 @@ public class ChoralAverageQuery extends BaseRichBolt {
     public void execute(Tuple tuple) {
         Timestamp tenMinutesAgo = new Timestamp(System.currentTimeMillis() - (10 * 60 * 1000));
         Timestamp now = new Timestamp(System.currentTimeMillis());
-
-        int deviceId = tuple.getInteger(0);
+        String data[] = tuple.getString(0).split(",");
+        int deviceId = Integer.parseInt(data[0]);
 
         try {
             ResultSetFuture resultSetFuture = getSession().executeAsync(preparedStatement.bind(deviceId, tenMinutesAgo, now));
@@ -56,7 +56,7 @@ public class ChoralAverageQuery extends BaseRichBolt {
 
             System.out.println("Average for " + deviceId + " = " + avg);
 
-            collector.emit(new Values(deviceId, avg));
+            collector.emit(new Values(deviceId, "average", avg));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +64,7 @@ public class ChoralAverageQuery extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id", "average"));
+        outputFieldsDeclarer.declare(new Fields("device_id", "function", "value"));
     }
 
     public Cluster getCluster() {

@@ -2,6 +2,7 @@ package storm;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.StormSubmitter;
 import org.apache.storm.kafka.*;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.spout.SchemeAsMultiScheme;
@@ -12,7 +13,7 @@ public class ChoralTopology {
     public static void main(String[] args) {
         //region Kafka spout creation
         BrokerHosts zooKeeperHosts = new ZkHosts("localhost:2181");
-        String topicName = "test8";
+        String topicName = args[0];
         String spoutId = "choraldatastreamSpout";
         SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
         spoutConfig.startOffsetTime = System.currentTimeMillis();
@@ -47,27 +48,27 @@ public class ChoralTopology {
         //endregion
 
         //region Local cluster
-        Config config = new Config();
-        config.setDebug(true);
-        LocalCluster localCluster = new LocalCluster();
-        localCluster.submitTopology("ChoralTopology", config, topologyBuilder.createTopology());
+//        Config config = new Config();
+//        config.setDebug(true);
+//        LocalCluster localCluster = new LocalCluster();
+//        localCluster.submitTopology("ChoralTopology", config, topologyBuilder.createTopology());
         //endregion
 
         //region Local cluster termination
-        Utils.sleep(100000);
-        localCluster.killTopology("ChoralTopology");
-        localCluster.shutdown();
+//        Utils.sleep(100000);
+//        localCluster.killTopology("ChoralTopology");
+//        localCluster.shutdown();
         //endregion
 
         //region Remote cluster
-//        Config remoteClusterConfig = new Config();
-//        remoteClusterConfig.setMessageTimeoutSecs(20);
-//
-//        try {
-//            StormSubmitter.submitTopology("ChoralTopology", remoteClusterConfig, topologyBuilder.createTopology());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        Config remoteClusterConfig = new Config();
+        remoteClusterConfig.setMessageTimeoutSecs(20);
+
+        try {
+            StormSubmitter.submitTopology("ChoralTopology", remoteClusterConfig, topologyBuilder.createTopology());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //endregion
     }
 }

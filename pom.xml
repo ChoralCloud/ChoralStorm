@@ -8,7 +8,7 @@
     <artifactId>choralstorm</artifactId>
     <version>1.0</version>
 
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <dependencies>
         <!--
@@ -19,15 +19,22 @@
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
             <version>1.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-starter</artifactId>
             <version>1.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-kafka</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-redis</artifactId>
             <version>1.1.0</version>
         </dependency>
         <dependency>
@@ -68,11 +75,6 @@
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
             <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.storm</groupId>
-            <artifactId>storm-redis</artifactId>
-            <version>1.1.0</version>
         </dependency>
     </dependencies>
 

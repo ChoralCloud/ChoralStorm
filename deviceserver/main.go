@@ -55,7 +55,7 @@ func handleRequests() {
 }
 
 func main() {
-    //go test()
+    go test()
     handleRequests()
 }
 

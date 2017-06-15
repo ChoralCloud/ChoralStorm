@@ -39,7 +39,7 @@ public class RedisBolt extends AbstractRedisBolt {
 
                 String deviceId = json.get("device_id").getAsString();
                 JsonObject deviceData = json.get("device_data").getAsJsonObject();
-                Timestamp timestamp = new Timestamp(json.get("device_timestamp").getAsLong());
+                Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
 
                 Set<Map.Entry<String, JsonElement>> entries = deviceData.entrySet();
 
@@ -47,11 +47,11 @@ public class RedisBolt extends AbstractRedisBolt {
 
                 entries.forEach(e -> {
                     update.put(e.getKey(), e.getValue().getAsString());
-                    update.put("device_timestamp", String.valueOf(timestamp.getTime()));
+                    update.put("device_timestamp", String.valueOf(deviceTimestamp.getTime()));
                 });
 
                 jedisCommands.hmset(String.valueOf(deviceId), update);
-                collector.emit(new Values(deviceId, deviceData));
+                collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
             } else {
                 String deviceId = tuple.getStringByField("device_id");
                 String func = tuple.getStringByField("function");
@@ -72,6 +72,7 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id", "data"));
+        outputFieldsDeclarer.declareStream("redis_raw_data", new Fields("device_id", "device_data", "device_timestamp"));
+        outputFieldsDeclarer.declareStream("redis_computed_data", new Fields("device_id", "function", "value"));
     }
 }

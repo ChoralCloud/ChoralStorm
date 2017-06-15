@@ -24,14 +24,17 @@ public class ChoralAverageQuery extends BaseRichBolt {
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         collector = outputCollector;
-
-        preparedStatement = getSession().prepare(
-                "SELECT * " +
-                "FROM choraldatastream.raw_data " +
-                "WHERE device_id = ? " +
-                "AND device_timestamp >= ? " +
-                "AND device_timestamp <= ?;"
+        try {
+            preparedStatement = getSession().prepare(
+                    "SELECT * " +
+                    "FROM choraldatastream.raw_data " +
+                    "WHERE device_id = ? " +
+                    "AND device_timestamp >= ? " +
+                    "AND device_timestamp <= ?;"
             );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void execute(Tuple tuple) {

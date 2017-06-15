@@ -25,10 +25,14 @@ public class CassandraBolt extends BaseRichBolt {
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         collector = outputCollector;
-        preparedStatement = getSession().prepare(
-                "INSERT INTO choraldatastream.raw_data(device_id, device_data, device_timestamp, time) " +
-                "VALUES (?, ?, ?, ?);"
-        );
+        try {
+            preparedStatement = getSession().prepare(
+                    "INSERT INTO choraldatastream.raw_data(device_id, device_data, device_timestamp, time) " +
+                            "VALUES (?, ?, ?, ?);"
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void execute(Tuple tuple) {
@@ -38,11 +42,11 @@ public class CassandraBolt extends BaseRichBolt {
         try {
             String deviceId = json.get("device_id").getAsString();
             String deviceData = json.get("device_data").getAsJsonObject().toString();
-            Timestamp timestamp = new Timestamp(json.get("device_timestamp").getAsLong());
+            Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
 
-            getSession().executeAsync(preparedStatement.bind(deviceId, deviceData, timestamp, new Timestamp(System.currentTimeMillis())));
+            getSession().executeAsync(preparedStatement.bind(deviceId, deviceData, deviceTimestamp, new Timestamp(System.currentTimeMillis())));
 
-            collector.emit(tuple, new Values(deviceId));
+            collector.emit(tuple, new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +54,7 @@ public class CassandraBolt extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id"));
+        outputFieldsDeclarer.declare(new Fields("device_id", "device_data", "device_timestamp"));
     }
 
     public Cluster getCluster() {

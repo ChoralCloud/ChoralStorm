@@ -1,3 +1,3 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-docker build -t choral/choralstorm choralstorm/
+docker build -t choralstorm choralstorm

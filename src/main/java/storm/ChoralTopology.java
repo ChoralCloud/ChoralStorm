@@ -12,8 +12,8 @@ import org.apache.storm.utils.Utils;
 public class ChoralTopology {
     public static void main(String[] args) {
         //region Kafka spout creation
-        BrokerHosts zooKeeperHosts = new ZkHosts("localhost:2181");
         String topicName = args[0];
+        BrokerHosts zooKeeperHosts = new ZkHosts("localhost:2181");
         String spoutId = "choraldatastreamSpout";
         SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
         spoutConfig.startOffsetTime = System.currentTimeMillis();

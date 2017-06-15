@@ -23,33 +23,29 @@ ChoralStorm uses these technologies:
 * [Apache Storm] - near real time data stream computation system
 * [Apache Cassandra] - persistent storage
 * [Redis] - real time cache
-* [Go] - "load balancing" server and endpoint for devices 
+* [Docker] - cluster container
 
 ### Todo
  - Automate and containerize everything
  - Determine more insights on data stream
  - Figure out how to make custom queries
+ - Figure out merge layer
+ - Integrate ElasticSearch
  
 ### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Storm, Cassandra
-1. Download [Apache Kafka], unzip in project directory
-1. Replace `$KAFKA_DIR/config/zookeeper.properties` and `$KAFKA_DIR/config/server.properties` with the ones found in this repository
-1. Download [Apache Storm], unzip in project directory
-1. Replace `$STORM_DIR/conf/storm.yaml` with the one found in this repository
-1. Download [Apache Cassandra], unzip in project directory
-1. Download [Redis], unzip in project directory and `make`
-1. Replace `$CASSANDRA_DIR/conf/cassandra.yaml` with the one found in this repository
-1. `$KAFKA_DIR/bin/zookeeper-server-start.sh config/zookeeper.properties`
-1. `$KAFKA_DIR/bin/kafka-server-start.sh config/server.properties`
-1. `$KAFKA_DIR/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic TOPIC_NAME`
-1. `$STORM_DIR/bin/storm nimbus`
-1. `$STORM_DIR/bin/storm supervisor`
-1. `$CASSANDRA_DIR/bin/cassandra`
-1. Create a table for Cassandra: `CREATE TABLE choraldatastream.raw_data (device_id text, device_data text, device_timestamp timestamp, time timestamp, primary key((device_id),device_timestamp));`
-1. `$REDIS_DIR/src/redis_server` and `$REDIS_DIR/src/redis_client`
-1. Run `KafkaServer` and `ChoralTopology`
+1. Ensure you have Cassandra and Redis running (storage layer)
+1. Build docker container `docker/build.sh`
+1. Run docker container `docker/run.sh`
+1. Generate topology `mvn package`
+1. Submit topology to Storm `docker/submit.sh PATH/TO/TOPOLOGY.JAR`
 
-At this point, everything should be set up and you can produce data with `main.go`.
+At this point, everything should be set up and the cluster can now consume data.
+
+### Cluster Information
+- Zookeeper = `localhost:2181`
+- Kafka = `localhost:9092, default topic=choraldatastream`
+- Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8080 (UI)`
 
 License
 ----
@@ -71,4 +67,4 @@ limitations under the License.
    [Apache Storm]: <http://storm.apache.org/>
    [Apache Cassandra]: <http://cassandra.apache.org/>
    [Redis]: <http://redis.io>
-   [Go]: <http://golang.org>
+   [Docker]: <http://docker.com/>

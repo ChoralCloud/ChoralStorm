@@ -1,3 +1,5 @@
-/home/james/Documents/SENG499/choralstorm/src/main/java/YahooFinanceSpout.java
-/home/james/Documents/SENG499/choralstorm/src/main/java/YahooFinanceBolt.java
-/home/james/Documents/SENG499/choralstorm/src/main/java/YahooFinanceTopology.java
+/home/james/Documents/SENG499/choralstorm/src/main/java/storm/RedisBolt.java
+/home/james/Documents/SENG499/choralstorm/src/main/java/storm/ChoralAverageQuery.java
+/home/james/Documents/SENG499/choralstorm/src/main/java/storm/CassandraBolt.java
+/home/james/Documents/SENG499/choralstorm/src/main/java/storm/ChoralBolt.java
+/home/james/Documents/SENG499/choralstorm/src/main/java/storm/ChoralTopology.java

@@ -36,10 +36,9 @@ public class CassandraBolt extends BaseRichBolt {
     }
 
     public void execute(Tuple tuple) {
-        Gson gson = new Gson();
-        JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
-
         try {
+            Gson gson = new Gson();
+            JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
             String deviceId = json.get("device_id").getAsString();
             String deviceData = json.get("device_data").getAsJsonObject().toString();
             Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
@@ -59,7 +58,8 @@ public class CassandraBolt extends BaseRichBolt {
 
     public Cluster getCluster() {
         if (cluster == null || cluster.isClosed()) {
-            String[] contactPoints = new String[]{"cassandra"};
+            String cassandraHost = ChoralTopology.local ? "localhost" : "cassandra";
+            String[] contactPoints = new String[]{cassandraHost};
             cluster = Cluster.builder()
                     .addContactPoints(contactPoints)
                     .build();

@@ -38,15 +38,15 @@ public class ChoralAverageQuery extends BaseRichBolt {
     }
 
     public void execute(Tuple tuple) {
-        Timestamp tenMinutesAgo = new Timestamp(System.currentTimeMillis() - (100 * 60 * 1000));
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-
-        Gson gson = new Gson();
-        JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
-
-        String deviceId = json.get("device_id").getAsString();
-
         try {
+            Timestamp tenMinutesAgo = new Timestamp(System.currentTimeMillis() - (100 * 60 * 1000));
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+
+            Gson gson = new Gson();
+            JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
+
+            String deviceId = json.get("device_id").getAsString();
+
             ResultSetFuture resultSetFuture = getSession().executeAsync(preparedStatement.bind(deviceId, tenMinutesAgo, now));
 
             // Got all data between now and 10 minutes ago
@@ -75,7 +75,8 @@ public class ChoralAverageQuery extends BaseRichBolt {
 
     public Cluster getCluster() {
         if (cluster == null || cluster.isClosed()) {
-            String[] contactPoints = new String[]{"cassandra"};
+            String cassandraHost = ChoralTopology.local ? "localhost" : "cassandra";
+            String[] contactPoints = new String[]{cassandraHost};
             cluster = Cluster.builder()
                     .addContactPoints(contactPoints)
                     .build();

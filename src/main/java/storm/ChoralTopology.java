@@ -10,12 +10,23 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.utils.Utils;
 
 public class ChoralTopology {
+
+    public static boolean local = false;
+
     public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Usage: ChoralTopology <TOPIC_NAME> <local | remote>");
+            return;
+        }
+
+        String topicName = args[0];
+        local = args[1].equals("local");
+
         //region Kafka spout creation
         KafkaSpout kafkaSpout = null;
         try {
-            String topicName = args[0];
-            BrokerHosts zooKeeperHosts = new ZkHosts("zookeeper:2181");
+            String zookeeperHost = local ? "localhost:2181" : "zookeeper:2181";
+            BrokerHosts zooKeeperHosts = new ZkHosts(zookeeperHost);
             String spoutId = "choraldatastreamSpout";
             SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
             spoutConfig.startOffsetTime = System.currentTimeMillis();
@@ -26,12 +37,11 @@ public class ChoralTopology {
         }
         //endregion
 
-
-
         //region Redis creation
         JedisPoolConfig poolConfig = null;
         try {
-            poolConfig = new JedisPoolConfig.Builder().setHost("redis").setPort(6379).build();
+            String redisHost = local ? "localhost" : "redis";
+            poolConfig = new JedisPoolConfig.Builder().setHost(redisHost).setPort(6379).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,16 +73,28 @@ public class ChoralTopology {
             e.printStackTrace();
         }
         //endregion
+        if (local) {
+            //region Local cluster
+            try {
+                Config config = new Config();
+                config.setDebug(true);
+                LocalCluster localCluster = new LocalCluster();
+                localCluster.submitTopology("ChoralTopology", config, topologyBuilder.createTopology());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //endregion
+        } else {
+            //region Remote cluster
+            Config remoteClusterConfig = new Config();
+            remoteClusterConfig.setMessageTimeoutSecs(20);
 
-        //region Remote cluster
-        Config remoteClusterConfig = new Config();
-        remoteClusterConfig.setMessageTimeoutSecs(20);
-
-        try {
-            StormSubmitter.submitTopology("ChoralTopology", remoteClusterConfig, topologyBuilder.createTopology());
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                StormSubmitter.submitTopology("ChoralTopology", remoteClusterConfig, topologyBuilder.createTopology());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //endregion
         }
-        //endregion
     }
 }

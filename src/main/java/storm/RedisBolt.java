@@ -63,7 +63,10 @@ public class RedisBolt extends AbstractRedisBolt {
                 jedisCommands.hmset(deviceId, update);
                 collector.emit(new Values(deviceId, func, value));
             }
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             if (jedisCommands != null) {
                 returnInstance(jedisCommands);
             }

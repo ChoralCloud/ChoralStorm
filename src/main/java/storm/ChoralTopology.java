@@ -15,7 +15,7 @@ public class ChoralTopology {
         KafkaSpout kafkaSpout = null;
         try {
             String topicName = args[0];
-            BrokerHosts zooKeeperHosts = new ZkHosts("localhost:2181");
+            BrokerHosts zooKeeperHosts = new ZkHosts("zookeeper:2181");
             String spoutId = "choraldatastreamSpout";
             SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
             spoutConfig.startOffsetTime = System.currentTimeMillis();
@@ -26,10 +26,12 @@ public class ChoralTopology {
         }
         //endregion
 
+
+
         //region Redis creation
         JedisPoolConfig poolConfig = null;
         try {
-            poolConfig = new JedisPoolConfig.Builder().setHost("localhost").setPort(6379).build();
+            poolConfig = new JedisPoolConfig.Builder().setHost("redis").setPort(6379).build();
         } catch (Exception e) {
             e.printStackTrace();
         }

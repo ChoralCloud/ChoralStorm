@@ -35,10 +35,10 @@ ChoralStorm uses these technologies:
 ### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Storm, Cassandra
 1. Ensure you have Cassandra and Redis running (storage layer)
-1. Build docker container `docker/build.sh`
-1. Run docker container `docker/run.sh`
+1. Build docker containers `build.sh`
+1. Run docker containers `docker-compose up -d`
 1. Generate topology `mvn package`
-1. Submit topology to Storm `docker/submit.sh PATH/TO/TOPOLOGY.JAR`
+1. Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
 
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
@@ -50,8 +50,10 @@ At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should 
 - Redis = `localhost:6379`
 
 ### Docker Commands
-- `build.sh` builds choralstorm, choralredis, and choralcassandra images
-- `run.sh` starts or restarts images
+- `docker-compose up` run containers
+- `docker-compose down` stop containers
+- `docker-compose rm` remove containers
+- `build.sh` builds kafka, zookeeper, storm, redis, and cassandra images
 - `stop.sh [--remove]` stops [and removes] images
 - `submit.sh PATH/TO/TOPOLOGY.JAR` submits the topology to choralstorm with default topic
 

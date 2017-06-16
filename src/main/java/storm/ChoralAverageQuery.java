@@ -75,7 +75,7 @@ public class ChoralAverageQuery extends BaseRichBolt {
 
     public Cluster getCluster() {
         if (cluster == null || cluster.isClosed()) {
-            String[] contactPoints = new String[]{"localhost"};
+            String[] contactPoints = new String[]{"cassandra"};
             cluster = Cluster.builder()
                     .addContactPoints(contactPoints)
                     .build();

@@ -40,12 +40,20 @@ These installation steps will get a cluster running with one instance of Kafka, 
 1. Generate topology `mvn package`
 1. Submit topology to Storm `docker/submit.sh PATH/TO/TOPOLOGY.JAR`
 
-At this point, everything should be set up and the cluster can now consume data.
+At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
 ### Cluster Information
 - Zookeeper = `localhost:2181`
 - Kafka = `localhost:9092, default topic=choraldatastream`
 - Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8080 (UI)`
+- Cassandra = `localhost:9042, localhost:9142, localhost:9160, default cluster=Choral`
+- Redis = `localhost:6379`
+
+### Docker Commands
+- `build.sh` builds choralstorm, choralredis, and choralcassandra images
+- `run.sh` starts or restarts images
+- `stop.sh [--remove]` stops [and removes] images
+- `submit.sh PATH/TO/TOPOLOGY.JAR` submits the topology to choralstorm with default topic
 
 License
 ----

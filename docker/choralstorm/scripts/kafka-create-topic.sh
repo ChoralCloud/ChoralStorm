@@ -22,4 +22,6 @@ if $start_timeout_exceeded; then
     exit 1
 fi
 
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partition 1 --topic $KAFKA_TOPIC
+if ! $KAFKA_HOME/bin/kafka-topics.sh --list --zookeeper $ZOOKEEPER | grep "$KAFKA_TOPIC"; then
+  $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partition 1 --topic $KAFKA_TOPIC
+fi

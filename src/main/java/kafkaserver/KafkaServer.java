@@ -20,8 +20,14 @@ public class KafkaServer {
     private static String topic;
 
     public static void main(String[] args) throws Exception {
-        int port = Integer.parseInt(args[0]);
-        topic = args[1];
+        int port = 3030;
+        try {
+            port = Integer.parseInt(args[0]);
+            topic = args[1];
+        } catch (Exception e) {
+            e.printStackTrace();
+            topic = "choraldatastream";
+        }
 
         Properties properties = new Properties();
         // Zookeepers

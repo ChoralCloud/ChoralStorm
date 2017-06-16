@@ -30,9 +30,9 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
-        final JedisCommands jedisCommands = getInstance();
-
+        JedisCommands jedisCommands = null;
         try {
+            jedisCommands = getInstance();
             if (tuple.getSourceComponent().equals("kafkaSpout")) {
                 Gson gson = new Gson();
                 JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);

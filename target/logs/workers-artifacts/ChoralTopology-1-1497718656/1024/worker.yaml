@@ -1,0 +1,4 @@
+worker-id: 42381f98-d80c-490c-afed-f28f2c61dfc1
+logs.users: []
+logs.groups: []
+topology.submitter.user: james

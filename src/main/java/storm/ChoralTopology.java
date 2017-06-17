@@ -24,7 +24,7 @@ public class ChoralTopology {
         if (args.length <= 2) {
             local = args[1].equals("local");
         }
-        
+
         //region Kafka spout creation
         KafkaSpout kafkaSpout = null;
         try {

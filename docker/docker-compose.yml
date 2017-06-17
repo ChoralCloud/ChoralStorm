@@ -2,6 +2,10 @@ version: '3.2'
 
 services:
   zookeeper:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     container_name: zookeeper
     hostname: zookeeper
     image: zookeeper
@@ -12,6 +16,10 @@ services:
       - choralstorm
 
   kafka:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     container_name: kafka
     hostname: kafka
     image: kafka
@@ -31,6 +39,10 @@ services:
       - zookeeper
 
   nimbus:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     container_name: nimbus
     command: storm nimbus
     hostname: nimbus
@@ -52,6 +64,10 @@ services:
       - zookeeper
 
   supervisor:
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
     container_name: supervisor
     command: storm supervisor
     hostname: supervisor
@@ -74,6 +90,10 @@ services:
       - nimbus
 
   ui:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     container_name: ui
     command: storm ui
     hostname: ui
@@ -91,6 +111,10 @@ services:
       - supervisor
 
   cassandra:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     container_name: cassandra
     hostname: cassandra
     image: cassandra
@@ -105,6 +129,10 @@ services:
       - choralstorm
 
   redis:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     container_name: redis
     hostname: redis
     image: redis

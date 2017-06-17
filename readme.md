@@ -41,19 +41,10 @@ These installation steps will get a cluster running with one instance of Kafka, 
     * Generate topology `mvn package`
     * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
 1. Local Cluster steps:
-    * Compile and run with these args: `choraldatastream local`
     * Update pom.xml `<provided.scope>provided</provided.scope>` under properties
-
-At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
-
-### Local Cluster Installation
-These installation steps will get a local cluster running with one instance of Kafka, Storm, Cassandra, Redis
-1. Ensure you have Cassandra and Redis running (storage layer)
-1. Build docker containers `build.sh`
-1. Run docker containers `docker-compose up -d`
-1. Generate topology `mvn package`
-1. Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
-
+    * Generate topology `mvn package`
+    * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
+    
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
 ### Cluster Information

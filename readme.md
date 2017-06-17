@@ -31,10 +31,19 @@ ChoralStorm uses these technologies:
  - Figure out how to make custom queries
  - Figure out merge layer
  - Integrate ElasticSearch
- 
+
+### System Requirements
+Minimum hardware requirements
+* Memory: 16+ GBs
+* Disk: 10+ GBs
+* CPU: 2+ cores
+
+Software requirements
+* Docker and Docker Compose
+* Java 8
+
 ### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis
-1. Ensure you have Cassandra and Redis running (storage layer)
 1. Build docker containers `build.sh`
 1. Run docker containers `docker-compose up -d`
 1. Remote Cluster steps: 
@@ -47,7 +56,7 @@ These installation steps will get a cluster running with one instance of Kafka, 
     
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
-### Cluster Information
+### Docker Cluster Information
 - Zookeeper = `localhost:2181`
 - Kafka = `localhost:9092, default topic=choraldatastream`
 - Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8080 (UI)`

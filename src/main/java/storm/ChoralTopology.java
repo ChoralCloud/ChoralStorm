@@ -14,14 +14,17 @@ public class ChoralTopology {
     public static boolean local = false;
 
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: ChoralTopology <TOPIC_NAME> <local | remote>");
+        if (args.length < 1) {
+            System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local | remote]");
             return;
         }
 
         String topicName = args[0];
-        local = args[1].equals("local");
 
+        if (args.length <= 2) {
+            local = args[1].equals("local");
+        }
+        
         //region Kafka spout creation
         KafkaSpout kafkaSpout = null;
         try {

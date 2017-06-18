@@ -23,7 +23,7 @@ public class CassandraBolt extends BaseRichBolt {
     private Cluster cluster;
     private Session session;
 
-    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+    public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
         collector = outputCollector;
         try {
             preparedStatement = getSession().prepare(
@@ -52,8 +52,8 @@ public class CassandraBolt extends BaseRichBolt {
         }
     }
 
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id", "device_data", "device_timestamp"));
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("device_id", "device_data", "device_timestamp"));
     }
 
     public Cluster getCluster() {

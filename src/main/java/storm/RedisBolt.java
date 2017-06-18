@@ -61,7 +61,7 @@ public class RedisBolt extends AbstractRedisBolt {
         }
     }
 
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream("redis_raw_data", new Fields("device_id", "device_data", "device_timestamp"));
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declareStream("redis_raw_data", new Fields("device_id", "device_data", "device_timestamp"));
     }
 }

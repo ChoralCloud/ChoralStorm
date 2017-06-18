@@ -52,7 +52,7 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
         }
     }
 
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream("redis_computed_data", new Fields("device_id", "device_function", "device_value"));
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declareStream("redis_computed_data", new Fields("device_id", "device_function", "device_value"));
     }
 }

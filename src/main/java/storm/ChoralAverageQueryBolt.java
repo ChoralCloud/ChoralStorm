@@ -22,7 +22,7 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
     private Session session;
     private Cluster cluster;
 
-    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+    public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
         collector = outputCollector;
         try {
             preparedStatement = getSession().prepare(
@@ -69,8 +69,8 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
         }
     }
 
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id", "device_function", "device_value"));
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("device_id", "device_function", "device_value"));
     }
 
     public Cluster getCluster() {

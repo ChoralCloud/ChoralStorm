@@ -2,7 +2,7 @@
 FROM debian:jessie-backports
 
 ENV CASSANDRA_PORT 9160
-ENV CASSANDRA_CLUSTER_NAME Choral
+ENV CASSANDRA_CLUSTER_NAME choralstorm
 ENV CASSANDRA_HOME /var/lib/cassandra
 
 # explicitly set user/group IDs

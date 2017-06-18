@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-public class ChoralAverageQuery extends BaseRichBolt {
+public class ChoralAverageQueryBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private PreparedStatement preparedStatement;
@@ -70,7 +70,7 @@ public class ChoralAverageQuery extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("device_id", "function", "value"));
+        outputFieldsDeclarer.declare(new Fields("device_id", "device_function", "device_value"));
     }
 
     public Cluster getCluster() {

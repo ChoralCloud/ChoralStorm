@@ -7,7 +7,6 @@ import org.apache.storm.kafka.*;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.utils.Utils;
 
 public class ChoralTopology {
 
@@ -15,15 +14,17 @@ public class ChoralTopology {
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local | remote]");
+            System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local]");
             return;
         }
 
         String topicName = args[0];
 
-        if (args.length <= 2) {
+        if (args.length >= 2) {
             local = args[1].equals("local");
         }
+
+        System.out.println("Topic: " + topicName + " on local: " + local);
 
         //region Kafka spout creation
         KafkaSpout kafkaSpout = null;
@@ -52,9 +53,14 @@ public class ChoralTopology {
 
         /*
         Topology
-        kafka -> cassandraBolt
-              -> choralAverageQuery -\
-              -------------------------> redisBolt
+
+        kafka
+        |-> cassandraBolt
+        |-> choralAverageQuery
+        |   |-> RedisAverageQueryBolt
+        |   |-> elasticSearchAverageQueryBolt
+        |-> redisBolt
+        |-> elasticSearchBolt
          */
 
         //region Topology creation
@@ -62,16 +68,21 @@ public class ChoralTopology {
         try {
             // kafka emits tuple(device_id, device_data, device_timestamp)
             topologyBuilder.setSpout("kafkaSpout", kafkaSpout);
+
             // cassandraBolt emits tuple(device_id, device_data, device_timestamp)
             topologyBuilder.setBolt("cassandraBolt", new CassandraBolt())
                     .shuffleGrouping("kafkaSpout");
-            // choralAverageQuery emits tuple(device_id, function, value)
-            topologyBuilder.setBolt("choralAverageQuery", new ChoralAverageQuery())
+            // choralAverageQuery emits tuple(device_id, device_function, device_value)
+            topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
                     .shuffleGrouping("kafkaSpout");
-            // redisBolt emits tuple(device_id, function, value) or tuple(device_id, function_ value)
+
+            // redisBolt emits tuple(device_id, device_data, device_timestamp)
             topologyBuilder.setBolt("redisBolt", new RedisBolt(poolConfig))
-                    .shuffleGrouping("kafkaSpout")
-                    .shuffleGrouping("choralAverageQuery");
+                    .shuffleGrouping("kafkaSpout");
+            // redisAverageQueryBolt emits tuple(device_id, device_function, device_value)
+            topologyBuilder.setBolt("RedisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
+                    .shuffleGrouping("choralAverageQueryBolt");
+
         } catch (Exception e) {
             e.printStackTrace();
         }

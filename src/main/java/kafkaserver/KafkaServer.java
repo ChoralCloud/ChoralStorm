@@ -1,18 +1,14 @@
 package kafkaserver;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import com.google.gson.JsonObject;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.json.simple.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class KafkaServer {
 
@@ -20,40 +16,71 @@ public class KafkaServer {
     private static String topic;
 
     public static void main(String[] args) throws Exception {
-        int port = 3030;
         try {
-            port = Integer.parseInt(args[0]);
-            topic = args[1];
+            Properties properties = new Properties();
+            // Zookeepers
+            properties.put("zookeeper.connect", "localhost:2181");
+            properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            // Brokers
+            properties.put("bootstrap.servers", "localhost:9092");
+
+            producer = new KafkaProducer<>(properties);
+            topic = "choraldatastream";
+
+            Device d1 = new Device("1", new JsonObject(), System.currentTimeMillis());
+            Device d2 = new Device("2", new JsonObject(), System.currentTimeMillis());
+            Device d3 = new Device("3", new JsonObject(), System.currentTimeMillis());
+
+            int max = 50;
+            int min = -50;
+
+            Runnable device1 = () -> {
+                int temp = new Random().nextInt(max + 1 - min) + min;
+                d1.deviceData.addProperty("temperature", String.valueOf(temp));
+                d1.deviceTimestamp = System.currentTimeMillis();
+                producer.send(new ProducerRecord<>(topic, "", d1.toString()));
+                System.out.println(d1.toString());
+            };
+
+            Runnable device2 = () -> {
+                int temp = new Random().nextInt(max + 1 - min) + min;
+                d2.deviceData.addProperty("temperature", String.valueOf(temp));
+                d2.deviceTimestamp = System.currentTimeMillis();
+                producer.send(new ProducerRecord<>(topic, "", d2.toString()));
+                System.out.println(d2.toString());
+            };
+
+            Runnable device3 = () -> {
+                int temp = new Random().nextInt(max + 1 - min) + min;
+                d3.deviceData.addProperty("temperature", String.valueOf(temp));
+                d3.deviceTimestamp = System.currentTimeMillis();
+                producer.send(new ProducerRecord<>(topic, "", d3.toString()));
+                System.out.println(d3.toString());
+            };
+
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
+            executor.scheduleAtFixedRate(device1, 1, 3, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(device2, 2, 3, TimeUnit.SECONDS);
+            executor.scheduleAtFixedRate(device3, 3, 3, TimeUnit.SECONDS);
         } catch (Exception e) {
             e.printStackTrace();
-            topic = "choraldatastream";
         }
-
-        Properties properties = new Properties();
-        // Zookeepers
-        properties.put("zookeeper.connect", "localhost:2181");
-        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        // Brokers
-        properties.put("bootstrap.servers", "localhost:9092");
-
-        producer = new KafkaProducer<>(properties);
-
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        System.out.println("server started at " + port);
-        server.createContext("/", new RootHandler());
-        server.setExecutor(null);
-        server.start();
     }
 
-    static class RootHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange he) throws IOException {
-            InputStreamReader isr = new InputStreamReader(he.getRequestBody(), "utf-8");
-            BufferedReader br = new BufferedReader(isr);
-            String request = JSONObject.escape(br.readLine()).replace("\\", "");
+    private static class Device {
+        public String deviceId;
+        public JsonObject deviceData;
+        public long deviceTimestamp;
 
-            producer.send(new ProducerRecord<>(topic,"", request));
+        public Device() {}
+
+        public Device(String id, JsonObject data, long timestamp) {
+            deviceId = id; deviceData = data; deviceTimestamp = timestamp;
+        }
+
+        public String toString() {
+            return "{device_id:" + this.deviceId + ",device_data:" + this.deviceData.toString() + ",device_timestamp:" + this.deviceTimestamp + "}";
         }
     }
 }

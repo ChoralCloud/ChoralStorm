@@ -44,6 +44,7 @@ Software requirements
 
 ### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis
+1. Edit docker-compose.yml and update `KAFKA_ADVERTISED_HOST` to your machine's IP address
 1. Build docker containers `build.sh`
 1. Run docker containers `docker-compose up -d`
 1. Remote Cluster steps: 

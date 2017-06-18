@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class RedisBolt extends AbstractRedisBolt {
+public class RedisAverageQueryBolt extends AbstractRedisBolt {
 
-    public RedisBolt(JedisPoolConfig config) {
+    public RedisAverageQueryBolt(JedisPoolConfig config) {
         super(config);
     }
 
-    public RedisBolt(JedisClusterConfig config) {
+    public RedisAverageQueryBolt(JedisClusterConfig config) {
         super(config);
     }
 
@@ -33,24 +33,15 @@ public class RedisBolt extends AbstractRedisBolt {
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
-            Gson gson = new Gson();
-            JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
-
-            String deviceId = json.get("device_id").getAsString();
-            JsonObject deviceData = json.get("device_data").getAsJsonObject();
-            Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
-
-            Set<Map.Entry<String, JsonElement>> entries = deviceData.entrySet();
+            String deviceId = tuple.getStringByField("device_id");
+            String deviceFunc = tuple.getStringByField("device_function");
+            double deviceValue = tuple.getDoubleByField("device_value");
 
             Map<String, String> update = new HashMap<>();
+            update.put(deviceFunc, String.valueOf(deviceValue));
 
-            entries.forEach(e -> {
-                update.put(e.getKey(), e.getValue().getAsString());
-                update.put("device_timestamp", String.valueOf(deviceTimestamp.getTime()));
-            });
-
-            jedisCommands.hmset(String.valueOf(deviceId), update);
-            collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
+            jedisCommands.hmset(deviceId, update);
+            collector.emit(new Values(deviceId, deviceFunc, deviceValue));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,6 +53,6 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream("redis_raw_data", new Fields("device_id", "device_data", "device_timestamp"));
+        outputFieldsDeclarer.declareStream("redis_computed_data", new Fields("device_id", "device_function", "device_value"));
     }
 }

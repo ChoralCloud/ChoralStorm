@@ -65,6 +65,6 @@ public class ElasticsearchBolt extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream("redis_raw_data", new Fields("device_id", "device_data", "device_timestamp"));
+        declarer.declare(new Fields("device_id", "device_data", "device_timestamp"));
     }
 }

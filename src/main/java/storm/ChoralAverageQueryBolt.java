@@ -2,6 +2,7 @@ package storm;
 
 import com.datastax.driver.core.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -12,8 +13,8 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChoralAverageQueryBolt extends BaseRichBolt {
 
@@ -50,19 +51,23 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
             ResultSetFuture resultSetFuture = getSession().executeAsync(preparedStatement.bind(deviceId, tenMinutesAgo, now));
 
             // Got all data between now and 10 minutes ago
-            ResultSet rows = resultSetFuture.get();
-            List<Row> all = rows.all();
+            List<Row> rows = resultSetFuture.get().all();
+            long rowCount = rows.size();
+            HashMap<String, Double> dataMap = new HashMap<>();
+            rows.parallelStream()
+                    .map(r -> new Gson().fromJson(r.get("device_data", String.class), JsonObject.class))
+                    .forEach(j -> {
+                        Set<Map.Entry<String, JsonElement>> dataEntries = j.entrySet();
+                        dataEntries.forEach(e -> dataMap.merge(e.getKey(), e.getValue().getAsDouble(), (a, b) -> a + b));
+                    });
 
-            double avg = all.parallelStream().mapToDouble(r -> {
-                Gson dataGson = new Gson();
-                String dataJson = r.get("device_data", String.class);
-                String temp = dataGson.fromJson(dataJson, JsonObject.class).get("temperature").getAsString();
-                return Double.parseDouble(temp);
-            }).average().orElse(0.0);
+            JsonObject deviceData = new JsonObject();
+            Set<Map.Entry<String, Double>> averages = dataMap.entrySet();
+            averages.forEach(a -> deviceData.addProperty(a.getKey(), (a.getValue() / rowCount)));
 
-            System.out.println("Average for " + deviceId + " = " + avg);
+            System.out.println("Average: " + deviceData.toString());
 
-            collector.emit(new Values(deviceId, "average", avg));
+            collector.emit(new Values(deviceId, "average", deviceData.toString()));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +75,7 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("device_id", "device_function", "device_value"));
+        declarer.declare(new Fields("device_id", "device_function", "device_data"));
     }
 
     public Cluster getCluster() {

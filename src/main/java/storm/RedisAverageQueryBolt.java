@@ -35,13 +35,13 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
             jedisCommands = getInstance();
             String deviceId = tuple.getStringByField("device_id");
             String deviceFunc = tuple.getStringByField("device_function");
-            double deviceValue = tuple.getDoubleByField("device_value");
+            String deviceData = tuple.getStringByField("device_data");
 
             Map<String, String> update = new HashMap<>();
-            update.put(deviceFunc, String.valueOf(deviceValue));
+            update.put(deviceFunc, String.valueOf(deviceData));
 
             jedisCommands.hmset(deviceId, update);
-            collector.emit(new Values(deviceId, deviceFunc, deviceValue));
+            collector.emit(new Values(deviceId, deviceFunc, deviceData));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,6 +53,6 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream("redis_computed_data", new Fields("device_id", "device_function", "device_value"));
+        declarer.declare(new Fields("device_id", "device_function", "device_data"));
     }
 }

@@ -16,6 +16,7 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.json.simple.JSONObject;
 
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class ElasticsearchAverageQueryBolt extends BaseRichBolt {
         try {
             String deviceId = tuple.getStringByField("device_id");
             String deviceFunc = tuple.getStringByField("device_function");
-            double deviceValue = tuple.getDoubleByField("device_value");
+            String deviceData = tuple.getStringByField("device_data");
 
             // index = choraldatastream, type = function
             String elasticsearchHost = ChoralTopology.local ? "localhost" : "elasticsearch";
@@ -40,7 +41,7 @@ public class ElasticsearchAverageQueryBolt extends BaseRichBolt {
             StringEntity entity = new StringEntity("{\n" +
                     "    \"device_id\": \"" + deviceId + "\",\n" +
                     "    \"device_function\": \"" + deviceFunc + "\",\n" +
-                    "    \"device_value\": \"" + deviceValue + "\"\n" +
+                    "    \"device_data\": \"" + JSONObject.escape(deviceData) + "\"\n" +
                     "}", "UTF-8");
 
             request.setEntity(entity);
@@ -52,7 +53,7 @@ public class ElasticsearchAverageQueryBolt extends BaseRichBolt {
             HttpEntity resp = response.getEntity();
             System.out.println("Post to ElasticSearch: " + EntityUtils.toString(resp, "UTF-8"));
 
-            collector.emit(new Values(deviceId, deviceFunc, deviceValue));
+            collector.emit(new Values(deviceId, deviceFunc, deviceData));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,6 +61,6 @@ public class ElasticsearchAverageQueryBolt extends BaseRichBolt {
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream("redis_computed_data", new Fields("device_id", "device_function", "device_value"));
+        declarer.declare(new Fields("device_id", "device_function", "device_data"));
     }
 }

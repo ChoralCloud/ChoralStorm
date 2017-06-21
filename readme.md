@@ -10,9 +10,10 @@ data storage can be used to make special queries such as "Give me all of the tem
 ### How it works
 The architecture below shows how data is consumed by the user's devices. Each device will send a certain format
 defined by the Choral Protocol to a central endpoint. In this case, it is a single go server that essentially 
-relays the information to each "cluster". A cluster is composed of the following: HTTP Server, Kafka, Zookeeper, and Storm.
-The HTTP Server in the cluster listens for any request from the central endpoint and adds the message to the topic. Storm
-then computes the information, and stores the data in the real time view and persistent storage.
+relays the information to each "cluster". A cluster is composed of the following: HTTP Server, Kafka, Zookeeper, Storm,
+Cassandra, Redis, and ElasticSearch.The HTTP Server in the cluster listens for any request from the central endpoint 
+and adds the message to the topic. Storm then computes the information, and stores the data in the real time view and 
+persistent storage.
 
 ![](/architecture.png)
 
@@ -23,6 +24,7 @@ ChoralStorm uses these technologies:
 * [Apache Storm] - near real time data stream computation system
 * [Apache Cassandra] - persistent storage
 * [Redis] - real time cache
+* [ElasticSearch] - data search engine
 * [Docker] - cluster container
 
 ### Todo
@@ -43,15 +45,16 @@ Software requirements
 * Java 8
 
 ### Cluster Installation
-These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis
+These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis, and ElasticSearch
 1. Edit docker-compose.yml and update `KAFKA_ADVERTISED_HOST` to your machine's IP address
 1. Build docker containers `build.sh`
 1. Run docker containers `docker-compose up -d`
 1. Remote Cluster steps: 
+    * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
     * Generate topology `mvn package`
     * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
 1. Local Cluster steps:
-    * Update pom.xml `<provided.scope>provided</provided.scope>` under properties
+    * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
     * Generate topology `mvn package`
     * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
     
@@ -63,12 +66,13 @@ At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should 
 - Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8080 (UI)`
 - Cassandra = `localhost:9042, localhost:9142, localhost:9160, default cluster=Choral`
 - Redis = `localhost:6379`
+- ElasticSearch = `localhost:9200, localhost:9300`
 
 ### Docker Commands
 - `docker-compose up` run containers
 - `docker-compose down` stop containers
 - `docker-compose rm` remove containers
-- `build.sh` builds kafka, zookeeper, storm, redis, and cassandra images
+- `build.sh` builds kafka, zookeeper, storm, redis, cassandra, elasticsearch images
 - `stop.sh [--remove]` stops [and removes] images
 - `submit.sh PATH/TO/TOPOLOGY.JAR` submits the topology to choralstorm with default topic
 
@@ -92,4 +96,5 @@ limitations under the License.
    [Apache Storm]: <http://storm.apache.org/>
    [Apache Cassandra]: <http://cassandra.apache.org/>
    [Redis]: <http://redis.io>
+   [ElasticSearch]: <http://www.elastic.co/>
    [Docker]: <http://docker.com/>

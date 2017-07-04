@@ -1,5 +1,5 @@
-# ChoralStorm POC
-ChoralStorm is a proof of concept designed to handle a large number of requests from IoT devices. In general,
+# ChoralStorm
+ChoralStorm is designed to handle a large number of requests from IoT devices. In general,
 the IoT devices will send data with a given format described by Choral Protocol. This system will then 
 parse the data and do general computations such as moving average, max, min. Furthermore, the system will push
 the data to a storage layer consisting of two parts: a real time view and the raw data persistence. The real time

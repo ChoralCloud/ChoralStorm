@@ -7,3 +7,4 @@ docker build -t kafka kafka
 docker build -t storm storm
 docker build -t cassandra cassandra
 docker build -t redis redis
+docker build -t elasticsearch elasticsearch

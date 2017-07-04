@@ -22,15 +22,15 @@ if [ "$1" = 'cassandra' ]; then
 	fi
 
 	: ${CASSANDRA_BROADCAST_ADDRESS="$CASSANDRA_LISTEN_ADDRESS"}
-
 	if [ "$CASSANDRA_BROADCAST_ADDRESS" = 'auto' ]; then
 		CASSANDRA_BROADCAST_ADDRESS="$(hostname --ip-address)"
 	fi
-	: ${CASSANDRA_BROADCAST_RPC_ADDRESS:=$CASSANDRA_BROADCAST_ADDRESS}
 
+	: ${CASSANDRA_BROADCAST_RPC_ADDRESS:=$CASSANDRA_BROADCAST_ADDRESS}
 	if [ -n "${CASSANDRA_NAME:+1}" ]; then
 		: ${CASSANDRA_SEEDS:="cassandra"}
 	fi
+
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
 
 	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
@@ -44,6 +44,7 @@ if [ "$1" = 'cassandra' ]; then
 		num_tokens \
 		rpc_address \
 		start_rpc \
+		data_file_directories \
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"

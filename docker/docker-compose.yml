@@ -2,7 +2,7 @@ version: '2.0'
 
 services:
   zookeeper:
-    container_name: zookeeper
+    container_name: ChoralStorm-zookeeper
     hostname: zookeeper
     image: zookeeper
     restart: always
@@ -12,7 +12,7 @@ services:
       - choralstorm
 
   kafka:
-    container_name: kafka
+    container_name: ChoralStorm-kafka
     hostname: kafka
     image: kafka
     ports:
@@ -33,7 +33,7 @@ services:
       - zookeeper
 
   nimbus:
-    container_name: nimbus
+    container_name: ChoralStorm-nimbus
     command: storm nimbus
     hostname: nimbus
     image: storm
@@ -54,7 +54,7 @@ services:
       - zookeeper
 
   supervisor:
-    container_name: supervisor
+    container_name: ChoralStorm-supervisor
     command: storm supervisor
     hostname: supervisor
     image: storm
@@ -76,7 +76,7 @@ services:
       - nimbus
 
   ui:
-    container_name: ui
+    container_name: ChoralStorm-ui
     command: storm ui
     hostname: ui
     image: storm
@@ -93,7 +93,7 @@ services:
       - supervisor
 
   cassandra:
-    container_name: cassandra
+    container_name: ChoralStorm-cassandra
     hostname: cassandra
     image: cassandra
     ports:
@@ -109,7 +109,7 @@ services:
       - choralstorm
 
   redis:
-    container_name: redis
+    container_name: ChoralStorm-redis
     hostname: redis
     image: redis
     ports:
@@ -120,7 +120,7 @@ services:
       - choralstorm
 
   elasticsearch:
-      container_name: elasticsearch
+      container_name: ChoralStorm-elasticsearch
       hostname: elasticsearch
       image: elasticsearch
       ports:

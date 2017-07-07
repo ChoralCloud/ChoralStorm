@@ -16,7 +16,7 @@ storm.zookeeper.servers: [zookeeper]
 nimbus.seeds: [nimbus]
 storm.log.dir: "$STORM_LOG_DIR"
 storm.local.dir: "$STORM_DATA_DIR"
-ui.port: 8000
+ui.port: 8082
 EOF
 fi
 

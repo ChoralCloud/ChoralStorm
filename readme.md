@@ -17,23 +17,6 @@ persistent storage.
 
 ![](/architecture.png)
 
-### Technologies
-ChoralStorm uses these technologies:
-
-* [Apache Kafka] - data stream message broker
-* [Apache Storm] - near real time data stream computation system
-* [Apache Cassandra] - persistent storage
-* [Redis] - real time cache
-* [ElasticSearch] - data search engine
-* [Docker] - cluster container
-
-### Todo
- - Automate and containerize everything
- - Determine more insights on data stream
- - Figure out how to make custom queries
- - Figure out merge layer
- - Integrate ElasticSearch
-
 ### System Requirements
 Minimum hardware requirements
 * Memory: 16+ GBs
@@ -60,21 +43,42 @@ These installation steps will get a cluster running with one instance of Kafka, 
     
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
-### Docker Cluster Information
+### Docker Cluster Information and Commands
 - Zookeeper = `localhost:2181`
 - Kafka = `localhost:9092, default topic=choraldatastream`
-- Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8080 (UI)`
-- Cassandra = `localhost:9042, localhost:9142, localhost:9160, default cluster=Choral`
+- Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8082 (UI)`
+- Cassandra = `localhost:9042, localhost:9142, localhost:9160, default cluster=ChoralStorm`
 - Redis = `localhost:6379`
 - ElasticSearch = `localhost:9200, localhost:9300`
-
-### Docker Commands
 - `docker-compose up` run containers
 - `docker-compose down` stop containers
 - `docker-compose rm` remove containers
 - `build.sh` builds kafka, zookeeper, storm, redis, cassandra, elasticsearch images
 - `stop.sh [--remove]` stops [and removes] images
-- `submit.sh PATH/TO/TOPOLOGY.JAR` submits the topology to choralstorm with default topic
+
+### Running the cluster
+- If docker images are not running: 
+    ```
+    docker-compose -f docker/cluster.yml up (server)
+    docker-compose -f docker/docker-compose.yml up (local)
+    ```
+- Run `scripts/run.sh`
+- To see if it is working (make sure data is streaming first):
+    ```
+    docker exec -it cassandra /bin/bash
+    cqlsh cassandra
+    select * from choraldatastream.raw_data;
+    ```
+
+### Technologies
+ChoralStorm uses these technologies:
+
+* [Apache Kafka] - data stream message broker
+* [Apache Storm] - near real time data stream computation system
+* [Apache Cassandra] - persistent storage
+* [Redis] - real time cache
+* [ElasticSearch] - data search engine
+* [Docker] - cluster container
 
 License
 ----

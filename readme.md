@@ -1,18 +1,18 @@
 # ChoralStorm
 ChoralStorm is designed to handle a large number of requests from IoT devices. In general,
-the IoT devices will send data with a given format described by Choral Protocol. This system will then 
+the IoT devices will send data with a given format described by Choral Protocol. This system will then
 parse the data and do general computations such as moving average, max, min. Furthermore, the system will push
 the data to a storage layer consisting of two parts: a real time view and the raw data persistence. The real time
 view can be used to retrieve live data from these IoT devices such as current value, average, min, and max. The raw
-data storage can be used to make special queries such as "Give me all of the temperatures for device 1 ranging from 
+data storage can be used to make special queries such as "Give me all of the temperatures for device 1 ranging from
 2015-2017".
 
 ### How it works
 The architecture below shows how data is consumed by the user's devices. Each device will send a certain format
-defined by the Choral Protocol to a central endpoint. In this case, it is a single go server that essentially 
+defined by the Choral Protocol to a central endpoint. In this case, it is a single go server that essentially
 relays the information to each "cluster". A cluster is composed of the following: HTTP Server, Kafka, Zookeeper, Storm,
-Cassandra, Redis, and ElasticSearch.The HTTP Server in the cluster listens for any request from the central endpoint 
-and adds the message to the topic. Storm then computes the information, and stores the data in the real time view and 
+Cassandra, Redis, and ElasticSearch.The HTTP Server in the cluster listens for any request from the central endpoint
+and adds the message to the topic. Storm then computes the information, and stores the data in the real time view and
 persistent storage.
 
 ![](/architecture.png)
@@ -27,12 +27,29 @@ Software requirements
 * Docker and Docker Compose
 * Java 8
 
+### Running the cluster
+- make sure docker images are not running:
+    ```
+    docker-compose -f docker/cluster.yml down #(development)
+    docker-compose -f docker/cluster.yml down #(server)
+    ```
+- run docker images:
+    ```
+    docker-compose -f docker/docker-compose.yml up -d && ./scripts/run.sh #(development)
+    docker-compose -f docker/cluster.yml up -d && ./scripts/run.sh #(server)
+    ```
+- To see if it is working (make sure data is streaming first):
+    ```
+    docker exec -it cassandra /bin/bash
+    cqlsh cassandra
+    select * from choraldatastream.raw_data;
+    ```
+
 ### Cluster Installation
 These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis, and ElasticSearch
-1. Edit docker-compose.yml and update `KAFKA_ADVERTISED_HOST` to your machine's IP address
 1. Build docker containers `build.sh`
 1. Run docker containers `docker-compose up -d`
-1. Remote Cluster steps: 
+1. Remote Cluster steps:
     * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
     * Generate topology `mvn package`
     * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
@@ -40,7 +57,7 @@ These installation steps will get a cluster running with one instance of Kafka, 
     * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
     * Generate topology `mvn package`
     * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
-    
+
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
 ### Docker Cluster Information and Commands
@@ -55,20 +72,6 @@ At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should 
 - `docker-compose rm` remove containers
 - `build.sh` builds kafka, zookeeper, storm, redis, cassandra, elasticsearch images
 - `stop.sh [--remove]` stops [and removes] images
-
-### Running the cluster
-- If docker images are not running: 
-    ```
-    docker-compose -f docker/cluster.yml up (server)
-    docker-compose -f docker/docker-compose.yml up (local)
-    ```
-- Run `scripts/run.sh`
-- To see if it is working (make sure data is streaming first):
-    ```
-    docker exec -it cassandra /bin/bash
-    cqlsh cassandra
-    select * from choraldatastream.raw_data;
-    ```
 
 ### Technologies
 ChoralStorm uses these technologies:

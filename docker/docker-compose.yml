@@ -25,10 +25,10 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_PORT: 9092
-      # Edit this to your machine's local ip address
-      # This is a temporary solution, another solution is to use "kafka" as host name
-      # and edit the /etc/hosts file: 127.0.0.1   kafka
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.0.14
+      # This is is a command that determines your current IP
+      # if you change IP addresses this will become invalid and your cluster will
+      # misteriously stop working.
+      HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
     depends_on:
       - zookeeper
 

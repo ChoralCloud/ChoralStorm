@@ -12,6 +12,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
+        Jedis jedis = new Jedis("redis");
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
@@ -50,6 +52,7 @@ public class RedisBolt extends AbstractRedisBolt {
             });
 
             jedisCommands.hmset(String.valueOf(deviceId), update);
+            jedis.publish(deviceId, "ping");
             collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);
         } catch (Exception e) {

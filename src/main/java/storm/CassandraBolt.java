@@ -45,7 +45,6 @@ public class CassandraBolt extends BaseRichBolt {
 
             getSession().executeAsync(preparedStatement.bind(deviceId, deviceData, deviceTimestamp, new Timestamp(System.currentTimeMillis())));
 
-            collector.emit(tuple, new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();

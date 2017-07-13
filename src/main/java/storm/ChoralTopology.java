@@ -33,8 +33,8 @@ public class ChoralTopology {
             BrokerHosts zooKeeperHosts = new ZkHosts(zookeeperHost);
             String spoutId = "choraldatastreamSpout";
             SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
-            spoutConfig.startOffsetTime = System.currentTimeMillis();
             spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+            spoutConfig.startOffsetTime = kafka.api.OffsetRequest.LatestTime();
             kafkaSpout = new KafkaSpout(spoutConfig);
         } catch (Exception e) {
             e.printStackTrace();

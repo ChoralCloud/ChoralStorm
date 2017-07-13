@@ -3,7 +3,6 @@ package storm;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.storm.redis.bolt.AbstractRedisBolt;
 import org.apache.storm.redis.common.config.JedisClusterConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
@@ -12,17 +11,19 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
 public class RedisBolt extends AbstractRedisBolt {
+    private JedisPoolConfig config;
 
     public RedisBolt(JedisPoolConfig config) {
         super(config);
+        this.config = config;
     }
 
     public RedisBolt(JedisClusterConfig config) {
@@ -30,9 +31,11 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
+        Jedis jedis = new Jedis(config.getHost());
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
+
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
 
@@ -50,6 +53,7 @@ public class RedisBolt extends AbstractRedisBolt {
             });
 
             jedisCommands.hmset(String.valueOf(deviceId), update);
+            jedis.publish(deviceId, "ping");
             collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);
         } catch (Exception e) {

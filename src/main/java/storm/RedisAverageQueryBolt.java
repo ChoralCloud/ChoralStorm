@@ -39,8 +39,6 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
             update.put(deviceFunc, String.valueOf(deviceData));
 
             jedisCommands.hmset(deviceId, update);
-            jedis.publish(deviceId, "ping");
-            collector.emit(new Values(deviceId, deviceFunc, deviceData));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();

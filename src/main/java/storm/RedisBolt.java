@@ -54,7 +54,6 @@ public class RedisBolt extends AbstractRedisBolt {
 
             jedisCommands.hmset(String.valueOf(deviceId), update);
             jedis.publish(deviceId, "ping");
-            collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();

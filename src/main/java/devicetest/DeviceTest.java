@@ -59,7 +59,8 @@ public class DeviceTest {
 
     private static void post(String data) {
         try {
-            URL url = new URL("http://choralcluster.csc.uvic.ca:8081");
+            URL url = new URL("http://localhost:8081");
+            //URL url = new URL("http://choralcluster.csc.uvic.ca:8081");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(5000);//5 secs
             connection.setReadTimeout(5000);//5 secs

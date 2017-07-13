@@ -8,7 +8,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
-import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
-        Jedis jedis = new Jedis(config.getHost());
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();

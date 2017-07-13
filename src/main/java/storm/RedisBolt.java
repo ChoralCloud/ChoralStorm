@@ -13,6 +13,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -21,9 +22,11 @@ import java.util.Set;
 
 
 public class RedisBolt extends AbstractRedisBolt {
+    JedisPoolConfig config;
 
     public RedisBolt(JedisPoolConfig config) {
         super(config);
+        this.config = config;
     }
 
     public RedisBolt(JedisClusterConfig config) {
@@ -31,10 +34,11 @@ public class RedisBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
-        Jedis jedis = new Jedis("redis");
+        Jedis jedis = new Jedis(config.getHost());
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
+
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
 

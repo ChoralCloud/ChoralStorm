@@ -22,8 +22,11 @@ import java.util.Set;
 
 public class RedisAverageQueryBolt extends AbstractRedisBolt {
 
+    JedisPoolConfig config;
+
     public RedisAverageQueryBolt(JedisPoolConfig config) {
         super(config);
+        this.config = config;
     }
 
     public RedisAverageQueryBolt(JedisClusterConfig config) {
@@ -31,7 +34,7 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
     }
 
     protected void process(Tuple tuple) {
-        Jedis jedis = new Jedis("redis");
+        Jedis jedis = new Jedis(config.getHost());
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();

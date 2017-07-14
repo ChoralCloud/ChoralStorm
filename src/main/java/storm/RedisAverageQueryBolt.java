@@ -6,7 +6,6 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 
 import java.util.HashMap;
@@ -14,11 +13,8 @@ import java.util.Map;
 
 public class RedisAverageQueryBolt extends AbstractRedisBolt {
 
-    private JedisPoolConfig config;
-
     public RedisAverageQueryBolt(JedisPoolConfig config) {
         super(config);
-        this.config = config;
     }
 
     public RedisAverageQueryBolt(JedisClusterConfig config) {

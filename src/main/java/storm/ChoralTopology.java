@@ -98,7 +98,7 @@ public class ChoralTopology {
             //region Local cluster
             try {
                 Config config = new Config();
-                config.setDebug(true);
+                //config.setDebug(true);
                 LocalCluster localCluster = new LocalCluster();
                 localCluster.submitTopology("ChoralTopology", config, topologyBuilder.createTopology());
             } catch (Exception e) {

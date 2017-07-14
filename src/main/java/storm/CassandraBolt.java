@@ -11,7 +11,6 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class CassandraBolt extends BaseRichBolt {
             String deviceId = json.get("device_id").getAsString();
             String deviceData = json.get("device_data").getAsJsonObject().toString();
             Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
-
+            
             getSession().executeAsync(preparedStatement.bind(deviceId, deviceData, deviceTimestamp, new Timestamp(System.currentTimeMillis())));
 
             collector.ack(tuple);

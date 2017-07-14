@@ -36,7 +36,8 @@ public class RedisBolt extends AbstractRedisBolt {
             jedisCommands = getInstance();
 
             Gson gson = new Gson();
-            JsonObject json = gson.fromJson(tuple.getString(0), JsonObject.class);
+            String jsonString = tuple.getString(0);
+            JsonObject json = gson.fromJson(jsonString, JsonObject.class);
 
             String deviceId = json.get("device_id").getAsString();
             JsonObject deviceData = json.get("device_data").getAsJsonObject();
@@ -52,7 +53,7 @@ public class RedisBolt extends AbstractRedisBolt {
             });
 
             jedisCommands.hmset(String.valueOf(deviceId), update);
-            jedis.publish(deviceId, "ping");
+            jedis.publish(deviceId, jsonString);
             collector.ack(tuple);
         } catch (Exception e) {
             e.printStackTrace();

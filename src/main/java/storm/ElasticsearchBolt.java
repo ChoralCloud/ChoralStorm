@@ -8,7 +8,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -55,7 +54,6 @@ public class ElasticsearchBolt extends BaseRichBolt {
 
             HttpResponse response = client.execute(request);
             HttpEntity resp = response.getEntity();
-            System.out.println("Post to ElasticSearch: " + EntityUtils.toString(resp, "UTF-8"));
 
             collector.emit(new Values(deviceId, deviceData, deviceTimestamp));
             collector.ack(tuple);

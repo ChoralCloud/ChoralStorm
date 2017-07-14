@@ -14,7 +14,6 @@ import org.apache.storm.tuple.Values;
 
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ChoralAverageQueryBolt extends BaseRichBolt {
 
@@ -64,8 +63,6 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
             JsonObject deviceData = new JsonObject();
             Set<Map.Entry<String, Double>> averages = dataMap.entrySet();
             averages.forEach(a -> deviceData.addProperty(a.getKey(), (a.getValue() / rowCount)));
-
-            System.out.println("Average: " + deviceData.toString());
 
             collector.emit(new Values(deviceId, "average", deviceData.toString()));
             collector.ack(tuple);

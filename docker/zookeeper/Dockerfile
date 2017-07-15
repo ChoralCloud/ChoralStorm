@@ -6,8 +6,9 @@ ENV ZOO_USER=zookeeper \
     ZOO_DATA_LOG_DIR=/datalog \
     ZOO_PORT=2181 \
     ZOO_TICK_TIME=2000 \
-    ZOO_INIT_LIMIT=5 \
-    ZOO_SYNC_LIMIT=2
+    ZOO_INIT_LIMIT=10 \
+    ZOO_SYNC_LIMIT=5 \
+    ZOO_MAX_CLIENT_CNXNS=30
 
 # Install required packages
 RUN apk add --no-cache \

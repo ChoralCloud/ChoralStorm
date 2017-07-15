@@ -29,18 +29,6 @@ services:
     networks:
       - choralstorm
 
-  elasticsearch:
-    container_name: elasticsearch
-    hostname: elasticsearch
-    image: elasticsearch
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - /network/seng466_shared/persistent/elasticsearch/data:/usr/share/elasticsearch/data
-    networks:
-      - choralstorm
-
 networks:
   choralstorm:
     external: true

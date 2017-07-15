@@ -83,13 +83,6 @@ public class ChoralTopology {
             topologyBuilder.setBolt("redisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
                     .shuffleGrouping("choralAverageQueryBolt");
 
-            // elasticsearchBolt emits tuple(device_id, device_data, device_timestamp)
-            topologyBuilder.setBolt("elasticsearchBolt", new ElasticsearchBolt())
-                    .shuffleGrouping("kafkaSpout");
-            // elasticsearchAverageQueryBolt emits tuple(device_id, device_function, device_value)
-            topologyBuilder.setBolt("elasticsearchAverageQueryBolt", new ElasticsearchAverageQueryBolt())
-                    .shuffleGrouping("choralAverageQueryBolt");
-
         } catch (Exception e) {
             e.printStackTrace();
         }

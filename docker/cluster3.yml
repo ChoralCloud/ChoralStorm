@@ -9,26 +9,27 @@ services:
     restart: always
     ports:
       - "2181:2181"
-    networks:
-      - choralstorm
+      - "2888:2888"
+      - "3888:3888"
     environment:
       ZOO_MY_ID: 3
-      ZOO_SERVERS: server.1=172.18.2.101:2888:3888 server.2=172.18.2.102:2888:3888 server.3=172.18.2.103:2888:3888
+      ZOO_SERVERS: server.1=172.18.2.101:2888:3888 server.2=172.18.2.102:2888:3888 server.3=0.0.0.0:2888:3888
 
   kafka:
     container_name: kafka
     hostname: kafka
     image: kafka
+    restart: always
     ports:
       - "9092:9092"
-    networks:
-      - choralstorm
     links:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: 172.18.2.101:2181,172.18.2.102:2181,172.18.2.103:2181
+      KAFKA_ZOOKEEPER_CONNECT: "172.18.2.101:2181,172.18.2.102:2181,172.18.2.103:2181"
+      KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
       KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://172.18.2.103:9092"
       # Edit this to your machine's local ip address
       # This is a temporary solution, another solution is to use "kafka" as host name
       # and edit the /etc/hosts file: 127.0.0.1   kafka
@@ -36,45 +37,19 @@ services:
     depends_on:
       - zookeeper
 
-  nimbus:
-    container_name: nimbus
-    command: storm nimbus -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]' -c nimbus.host="172.18.2.101" -c storm.local.hostname="172.18.2.101" -c nimbus.seeds='["172.18.2.101"]'
-    hostname: nimbus
-    image: storm
-    ports:
-      - "6627:6627"
-      - "3772"
-      - "3773"
-      - "3774"
-    networks:
-      - choralstorm
-    links:
-      - zookeeper
-    volumes:
-      - /root/workspace:/root/workspace
-    depends_on:
-      - zookeeper
-
   supervisor:
     container_name: supervisor
-    command: storm supervisor -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]' -c nimbus.host="172.18.2.101" -c storm.local.hostname="172.18.2.101" -c nimbus.seeds='["172.18.2.101"]'
+    command: storm supervisor -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]' -c storm.local.hostname="172.18.2.103" -c nimbus.seeds='["172.18.2.101"]'
     hostname: supervisor
     image: storm
+    restart: always
     ports:
       - "6700:6700"
       - "6701:6701"
       - "6702:6702"
       - "6703:6703"
       - "8000:8000"
-    networks:
-      - choralstorm
     links:
-      - nimbus
       - zookeeper
     depends_on:
       - zookeeper
-      - nimbus
-
-networks:
-  choralstorm:
-    external: true

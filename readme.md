@@ -32,8 +32,7 @@ Software requirements
 1. Run docker images: `docker-compose -f docker/docker-compose.yml up -d`
 1. To see if it is working (make sure data is streaming first):
     ```
-    docker exec -it cassandra /bin/bash
-    cqlsh cassandra
+    docker exec -it cassandra /usr/bin/cqlsh cassandra
     select * from choraldatastream.raw_data;
     ```
 1. If running Storm locally (no need to submit topology):

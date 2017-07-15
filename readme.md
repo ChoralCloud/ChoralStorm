@@ -40,8 +40,7 @@ Software requirements
     ```
 - To see if it is working (make sure data is streaming first):
     ```
-    docker exec -it cassandra /bin/bash
-    cqlsh cassandra
+    docker exec -it cassandra /usr/bin/cqlsh cassandra
     select * from choraldatastream.raw_data;
     ```
 

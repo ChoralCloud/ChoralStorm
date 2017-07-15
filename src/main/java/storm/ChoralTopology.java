@@ -73,15 +73,15 @@ public class ChoralTopology {
             topologyBuilder.setBolt("cassandraBolt", new CassandraBolt())
                     .shuffleGrouping("kafkaSpout");
             // choralAverageQuery emits tuple(device_id, device_function, device_value)
-            topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
-                    .shuffleGrouping("kafkaSpout");
+            // topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
+            //        .shuffleGrouping("kafkaSpout");
 
             // redisBolt emits tuple(device_id, device_data, device_timestamp)
             topologyBuilder.setBolt("redisBolt", new RedisBolt(poolConfig))
                     .shuffleGrouping("kafkaSpout");
             // redisAverageQueryBolt emits tuple(device_id, device_function, device_value)
-            topologyBuilder.setBolt("redisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
-                    .shuffleGrouping("choralAverageQueryBolt");
+            // topologyBuilder.setBolt("redisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
+            //        .shuffleGrouping("choralAverageQueryBolt");
 
         } catch (Exception e) {
             e.printStackTrace();

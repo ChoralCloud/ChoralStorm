@@ -50,8 +50,6 @@ services:
       - choralstorm
     links:
       - zookeeper
-      - cassandra
-      - redis
     volumes:
       - /root/workspace:/root/workspace
     depends_on:
@@ -73,8 +71,6 @@ services:
     links:
       - nimbus
       - zookeeper
-      - cassandra
-      - redis
     depends_on:
       - zookeeper
       - nimbus

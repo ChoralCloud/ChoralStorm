@@ -1,0 +1,113 @@
+version: '2.0'
+
+#To be run on choralcluster1 (172.18.2.101)
+services:
+  zookeeper:
+    container_name: zookeeper
+    hostname: zookeeper
+    image: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    networks:
+      - choralstorm
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=172.18.2.101:2888:3888 server.2=172.18.2.102:2888:3888 server.3=172.18.2.103:2888:3888
+
+  kafka:
+    container_name: kafka
+    hostname: kafka
+    image: kafka
+    ports:
+      - "9092:9092"
+    networks:
+      - choralstorm
+    links:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 172.18.2.101:2181,172.18.2.102:2181,172.18.2.103:2181
+      KAFKA_ADVERTISED_PORT: 9092
+      # Edit this to your machine's local ip address
+      # This is a temporary solution, another solution is to use "kafka" as host name
+      # and edit the /etc/hosts file: 127.0.0.1   kafka
+      KAFKA_ADVERTISED_HOST_NAME: 172.18.2.101
+    depends_on:
+      - zookeeper
+
+  nimbus:
+    container_name: nimbus
+    command: storm nimbus
+    -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]'
+    -c nimbus.host="172.18.2.101"
+    -c storm.local.hostname="172.18.2.101"
+    -c nimbus.seeds='["172.18.2.101"]'
+    hostname: nimbus
+    image: storm
+    ports:
+      - "6627:6627"
+      - "3772"
+      - "3773"
+      - "3774"
+    networks:
+      - choralstorm
+    links:
+      - zookeeper
+      - cassandra
+      - redis
+    volumes:
+      - /root/workspace:/root/workspace
+    depends_on:
+      - zookeeper
+
+  supervisor:
+    container_name: supervisor
+    command: storm supervisor
+    -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]'
+    -c nimbus.host="172.18.2.101"
+    -c storm.local.hostname="172.18.2.101"
+    -c nimbus.seeds='["172.18.2.101"]'
+    hostname: supervisor
+    image: storm
+    ports:
+      - "6700:6700"
+      - "6701:6701"
+      - "6702:6702"
+      - "6703:6703"
+      - "8000:8000"
+    networks:
+      - choralstorm
+    links:
+      - nimbus
+      - zookeeper
+      - cassandra
+      - redis
+    depends_on:
+      - zookeeper
+      - nimbus
+
+  ui:
+    container_name: ui
+    command: storm ui
+    -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]'
+    -c nimbus.host="172.18.2.101"
+    -c storm.local.hostname="172.18.2.101"
+    -c nimbus.seeds='["172.18.2.101"]'
+    hostname: ui
+    image: storm
+    ports:
+      - "8080:8080"
+    networks:
+      - choralstorm
+    links:
+      - cassandra
+      - redis
+    depends_on:
+      - zookeeper
+      - nimbus
+      - supervisor
+
+networks:
+  choralstorm:
+    external: true

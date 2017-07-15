@@ -11,6 +11,7 @@ import org.apache.storm.topology.TopologyBuilder;
 public class ChoralTopology {
 
     public static boolean local = false;
+    public static String psRemoteHost = "172.18.2.104";
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -19,7 +20,6 @@ public class ChoralTopology {
         }
 
         String topicName = args[0];
-
         if (args.length >= 2) {
             local = args[1].equals("local");
         }
@@ -44,7 +44,7 @@ public class ChoralTopology {
         //region Redis creation
         JedisPoolConfig poolConfig = null;
         try {
-            String redisHost = local ? "localhost" : "redis";
+            String redisHost = local ? "localhost" : psRemoteHost;
             poolConfig = new JedisPoolConfig.Builder().setHost(redisHost).setPort(6379).build();
         } catch (Exception e) {
             e.printStackTrace();

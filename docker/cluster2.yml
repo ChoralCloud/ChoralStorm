@@ -38,11 +38,7 @@ services:
 
   nimbus:
     container_name: nimbus
-    command: storm nimbus
-    -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]'
-    -c nimbus.host="172.18.2.102"
-    -c storm.local.hostname="172.18.2.102"
-    -c nimbus.seeds='["172.18.2.101"]'
+    command: storm nimbus -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]' -c nimbus.host="172.18.2.101" -c storm.local.hostname="172.18.2.101" -c nimbus.seeds='["172.18.2.101"]'
     hostname: nimbus
     image: storm
     ports:
@@ -63,11 +59,7 @@ services:
 
   supervisor:
     container_name: supervisor
-    command: storm supervisor
-    -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]'
-    -c nimbus.host="172.18.2.102"
-    -c storm.local.hostname="172.18.2.102"
-    -c nimbus.seeds='["172.18.2.101"]'
+    command: storm supervisor -c storm.zookeeper.servers='["172.18.2.101,172.18.2.102,172.18.2.103"]' -c nimbus.host="172.18.2.101" -c storm.local.hostname="172.18.2.101" -c nimbus.seeds='["172.18.2.101"]'
     hostname: supervisor
     image: storm
     ports:

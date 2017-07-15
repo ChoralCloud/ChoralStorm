@@ -27,11 +27,26 @@ Software requirements
 * Docker and Docker Compose
 * Java 8
 
+### Cluster Installation
+These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis, and ElasticSearch
+1. Build docker containers `pushd docker && ./build.sh && popd`
+1. Run docker containers `docker-compose up -d`
+1. Remote Cluster steps: (you should be in the root project directory now)
+    * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
+    * Generate topology `mvn package`
+    * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
+1. Local Cluster steps: (you should be in the root project directory now)
+    * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
+    * Generate topology `mvn package`
+    * Run jar: `java -cp target/choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
+
+At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
+
 ### Running the cluster
 - make sure docker images are not running:
     ```
-    docker-compose -f docker/cluster.yml down #(development)
-    docker-compose -f docker/cluster.yml down #(server)
+    docker-compose -f docker/cluster1.yml down #(development)
+    docker-compose -f docker/cluster1.yml down #(server)
     ```
 - run docker images:
     ```
@@ -43,21 +58,6 @@ Software requirements
     docker exec -it cassandra /usr/bin/cqlsh cassandra
     select * from choraldatastream.raw_data;
     ```
-
-### Cluster Installation
-These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis, and ElasticSearch
-1. Build docker containers `build.sh`
-1. Run docker containers `docker-compose up -d`
-1. Remote Cluster steps:
-    * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
-    * Generate topology `mvn package`
-    * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
-1. Local Cluster steps:
-    * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
-    * Generate topology `mvn package`
-    * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
-
-At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 
 ### Docker Cluster Information and Commands
 - Zookeeper = `localhost:2181`

@@ -1,19 +1,15 @@
 # ChoralStorm
-ChoralStorm is designed to handle a large number of requests from IoT devices. In general,
-the IoT devices will send data with a given format described by Choral Protocol. This system will then
-parse the data and do general computations such as moving average, max, min. Furthermore, the system will push
-the data to a storage layer consisting of two parts: a real time view and the raw data persistence. The real time
-view can be used to retrieve live data from these IoT devices such as current value, average, min, and max. The raw
-data storage can be used to make special queries such as "Give me all of the temperatures for device 1 ranging from
-2015-2017".
+ChoralStorm is designed to handle a large number of requests from IoT devices. In general, the IoT devices will send 
+data with a given format described by Choral Protocol. This system will then parse the data and will push the data to a 
+storage layer consisting of two parts: a real time view and the raw data persistence. The real time view can be used to 
+retrieve live data from these IoT devices. The raw data storage can be used to make special queries such as "Give me all 
+of the temperatures for device 1 ranging from 2015-2017".
 
 ### How it works
-The architecture below shows how data is consumed by the user's devices. Each device will send a certain format
-defined by the Choral Protocol to a central endpoint. In this case, it is a single go server that essentially
-relays the information to each "cluster". A cluster is composed of the following: HTTP Server, Kafka, Zookeeper, Storm,
-Cassandra, Redis, and ElasticSearch.The HTTP Server in the cluster listens for any request from the central endpoint
-and adds the message to the topic. Storm then computes the information, and stores the data in the real time view and
-persistent storage.
+Each device will send a certain format defined by the Choral Protocol to a central endpoint, namely [ChoralAllegro]. 
+The ChoralStorm cluster is composed of the following: Kafka, Zookeeper, Storm, Cassandra, and Redis. Kafka receives 
+messages from ChoralAllegro, while Storm consumes the messages. Additionally, Storm will push raw data to Cassandra and
+Redis.
 
 ![](/architecture.png)
 
@@ -24,54 +20,44 @@ Minimum hardware requirements
 * CPU: 2+ cores
 
 Software requirements
-* Docker and Docker Compose
+* docker and docker-compose
 * Java 8
 
-### Running the cluster
-- make sure docker images are not running:
+### Running the cluster locally
+1. If its the first time running:
     ```
-    docker-compose -f docker/cluster.yml down #(development)
-    docker-compose -f docker/cluster.yml down #(server)
+    docker/build.sh
     ```
-- run docker images:
-    ```
-    docker-compose -f docker/docker-compose.yml up -d && ./scripts/run.sh #(development)
-    docker-compose -f docker/cluster.yml up -d && ./scripts/run.sh #(server)
-    ```
-- To see if it is working (make sure data is streaming first):
+1. Make sure docker images are not running: `docker-compose -f docker/docker-compose.yml down`
+1. Run docker images: `docker-compose -f docker/docker-compose.yml up -d`
+1. To see if it is working (make sure data is streaming first):
     ```
     docker exec -it cassandra /bin/bash
     cqlsh cassandra
     select * from choraldatastream.raw_data;
     ```
-
-### Cluster Installation
-These installation steps will get a cluster running with one instance of Kafka, Zookeeper, Storm, Cassandra, Redis, and ElasticSearch
-1. Build docker containers `build.sh`
-1. Run docker containers `docker-compose up -d`
-1. Remote Cluster steps:
-    * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
-    * Generate topology `mvn package`
-    * Submit topology to Storm `submit.sh PATH/TO/TOPOLOGY.JAR`
-1. Local Cluster steps:
+1. If running Storm locally (no need to submit topology):
     * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
     * Generate topology `mvn package`
     * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
+1. If running Storm remotely (need to submit topology):
+    * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
+    * Submit topology `scripts/run.sh`
+
+### Running the cluster remotely
+![](/choralcluster.png)
+1. SSH into choralcluster1 `ssh -i id_seng466 root@choralcluster1`
+1. The `choralcluster` service should be running 
+    ```
+    systemctl status choralcluster1 #check status
+    systemctl start choralcluster1 #start service
+    systemctl stop choralcluster1 #stop service
+    systemctl restart choralcluster #restart service
+    ```
+1. If service is not running, run the following script `scripts/restart_cluster.sh`
+1. Otherwise, submit topology `scripts/run.sh`
 
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
-
-### Docker Cluster Information and Commands
-- Zookeeper = `localhost:2181`
-- Kafka = `localhost:9092, default topic=choraldatastream`
-- Storm = `localhost:6627, localhost:6700-6702 (Supervisor), localhost:8082 (UI)`
-- Cassandra = `localhost:9042, localhost:9142, localhost:9160, default cluster=ChoralStorm`
-- Redis = `localhost:6379`
-- ElasticSearch = `localhost:9200, localhost:9300`
-- `docker-compose up` run containers
-- `docker-compose down` stop containers
-- `docker-compose rm` remove containers
-- `build.sh` builds kafka, zookeeper, storm, redis, cassandra, elasticsearch images
-- `stop.sh [--remove]` stops [and removes] images
 
 ### Technologies
 ChoralStorm uses these technologies:
@@ -80,7 +66,6 @@ ChoralStorm uses these technologies:
 * [Apache Storm] - near real time data stream computation system
 * [Apache Cassandra] - persistent storage
 * [Redis] - real time cache
-* [ElasticSearch] - data search engine
 * [Docker] - cluster container
 
 License
@@ -103,5 +88,5 @@ limitations under the License.
    [Apache Storm]: <http://storm.apache.org/>
    [Apache Cassandra]: <http://cassandra.apache.org/>
    [Redis]: <http://redis.io>
-   [ElasticSearch]: <http://www.elastic.co/>
    [Docker]: <http://docker.com/>
+   [ChoralAllegro]: <https://github.com/choralcloud/ChoralAllegro/>

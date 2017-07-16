@@ -35,13 +35,13 @@ Software requirements
     docker exec -it cassandra /usr/bin/cqlsh cassandra
     select * from choraldatastream.raw_data;
     ```
-1. If running Storm locally (no need to submit topology):
+1. If running Storm with debugging:
     * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
     * Generate topology `mvn package`
     * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
-1. If running Storm remotely (need to submit topology):
+1. If running Storm without debugging:
     * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
-    * Submit topology `scripts/run.sh --local`
+    * Submit topology `scripts/run.sh`
     * View topology: [http://localhost:8080](http://localhost:8080)
 
 ### Running the cluster remotely
@@ -55,7 +55,7 @@ Software requirements
     systemctl restart choralcluster #restart service
     ```
 1. If service is not running, run the following script `scripts/restart_cluster.sh`
-1. Otherwise, submit topology `scripts/run.sh`
+1. Otherwise, submit topology `scripts/run.sh --remote`
 
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 

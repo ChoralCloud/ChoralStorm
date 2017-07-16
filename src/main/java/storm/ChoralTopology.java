@@ -10,11 +10,12 @@ import org.apache.storm.topology.TopologyBuilder;
 
 public class ChoralTopology {
 
-    public static boolean local = false;
-    public static boolean cluster = false;
-    public static String psRemoteHost = "172.18.2.104";
-
     public static void main(String[] args) {
+
+        boolean local = false;
+        boolean cluster = false;
+        String psRemoteHost = "172.18.2.104";
+
         if (args.length < 1) {
             System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local] [cluster]");
             return;
@@ -50,13 +51,20 @@ public class ChoralTopology {
         JedisPoolConfig poolConfig = null;
         try {
             String redisHost;
-            if (ChoralTopology.local && !ChoralTopology.cluster) redisHost = "localhost";
-            else if (ChoralTopology.local && ChoralTopology.cluster) redisHost = "redis";
-            else redisHost = ChoralTopology.psRemoteHost;
+            if (local && !cluster) redisHost = "localhost";
+            else if (local) redisHost = "redis";
+            else redisHost = psRemoteHost;
             poolConfig = new JedisPoolConfig.Builder().setHost(redisHost).setPort(6379).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //endregion
+
+        //region Cassandra config
+        String cassandraHost;
+        if (local && !cluster) cassandraHost = "localhost";
+        else if (local) cassandraHost = "cassandra";
+        else cassandraHost = psRemoteHost;
         //endregion
 
         /*
@@ -71,6 +79,8 @@ public class ChoralTopology {
         |-> elasticSearchBolt
          */
 
+        Config conf = new Config();
+
         //region Topology creation
         TopologyBuilder topologyBuilder = new TopologyBuilder();
         try {
@@ -78,10 +88,10 @@ public class ChoralTopology {
             topologyBuilder.setSpout("kafkaSpout", kafkaSpout);
 
             // cassandraBolt emits tuple(device_id, device_data, device_timestamp)
-            topologyBuilder.setBolt("cassandraBolt", new CassandraBolt())
+            topologyBuilder.setBolt("cassandraBolt", new CassandraBolt(cassandraHost))
                     .shuffleGrouping("kafkaSpout");
             // choralAverageQuery emits tuple(device_id, device_function, device_value)
-            // topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
+            // topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt(cassandraHost))
             //        .shuffleGrouping("kafkaSpout");
 
             // redisBolt emits tuple(device_id, device_data, device_timestamp)
@@ -98,21 +108,16 @@ public class ChoralTopology {
         if (!cluster) {
             //region Local cluster
             try {
-                Config config = new Config();
-                //config.setDebug(true);
                 LocalCluster localCluster = new LocalCluster();
-                localCluster.submitTopology("ChoralTopology", config, topologyBuilder.createTopology());
+                localCluster.submitTopology("ChoralTopology", conf, topologyBuilder.createTopology());
             } catch (Exception e) {
                 e.printStackTrace();
             }
             //endregion
         } else {
             //region Remote cluster
-            Config remoteClusterConfig = new Config();
-            remoteClusterConfig.setMessageTimeoutSecs(20);
-
             try {
-                StormSubmitter.submitTopology("ChoralTopology", remoteClusterConfig, topologyBuilder.createTopology());
+                StormSubmitter.submitTopology("ChoralTopology", conf, topologyBuilder.createTopology());
             } catch (Exception e) {
                 e.printStackTrace();
             }

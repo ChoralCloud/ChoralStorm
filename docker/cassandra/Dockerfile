@@ -76,7 +76,7 @@ VOLUME /var/lib/cassandra
 # 7199: JMX
 # 9042: CQL
 # 9160: thrift service
-EXPOSE 7000 7001 7199 9042 9160
+EXPOSE 7000 7001 7199 9042 9160 9142
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]

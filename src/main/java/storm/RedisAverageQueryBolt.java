@@ -35,6 +35,7 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
             jedisCommands.hmset(deviceId, update);
             collector.ack(tuple);
         } catch (Exception e) {
+            collector.reportError(e);
             e.printStackTrace();
         } finally {
             if (jedisCommands != null) {

@@ -56,6 +56,7 @@ public class RedisBolt extends AbstractRedisBolt {
             jedis.publish(deviceId, jsonString);
             collector.ack(tuple);
         } catch (Exception e) {
+            collector.reportError(e);
             e.printStackTrace();
         } finally {
             if (jedisCommands != null) {

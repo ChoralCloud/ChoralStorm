@@ -22,6 +22,12 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
     private Session session;
     private Cluster cluster;
 
+    private String cassandraHost;
+
+    public ChoralAverageQueryBolt(String host) {
+        cassandraHost = host;
+    }
+
     public void prepare(Map stormConf, TopologyContext topologyContext, OutputCollector outputCollector) {
         collector = outputCollector;
         try {
@@ -67,6 +73,7 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
             collector.emit(new Values(deviceId, "average", deviceData.toString()));
             collector.ack(tuple);
         } catch (Exception e) {
+            collector.reportError(e);
             e.printStackTrace();
         }
     }
@@ -77,10 +84,6 @@ public class ChoralAverageQueryBolt extends BaseRichBolt {
 
     public Cluster getCluster() {
         if (cluster == null || cluster.isClosed()) {
-            String cassandraHost;
-            if (ChoralTopology.local && !ChoralTopology.cluster) cassandraHost = "localhost";
-            else if (ChoralTopology.local && ChoralTopology.cluster) cassandraHost = "cassandra";
-            else cassandraHost = ChoralTopology.psRemoteHost;
             String[] contactPoints = new String[]{cassandraHost};
             cluster = Cluster.builder()
                     .addContactPoints(contactPoints)

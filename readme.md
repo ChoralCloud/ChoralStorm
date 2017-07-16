@@ -43,6 +43,12 @@ Software requirements
     * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
     * Submit topology `scripts/run.sh`
     * View topology: [http://localhost:8080](http://localhost:8080)
+    
+    ####Notes
+    - if you are developing and changing ChoralTopology.java, you need to resubmit the topology
+        ```
+        scripts/rebuild.sh
+        ```
 
 ### Running the cluster remotely
 ![](/choralcluster.png)

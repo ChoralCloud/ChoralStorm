@@ -29,10 +29,12 @@ public class RedisAverageQueryBolt extends AbstractRedisBolt {
             String deviceFunc = tuple.getStringByField("device_function");
             String deviceData = tuple.getStringByField("device_data");
 
-            Map<String, String> update = new HashMap<>();
-            update.put(deviceFunc, String.valueOf(deviceData));
+            if (!deviceId.isEmpty() && !deviceFunc.isEmpty() && !deviceData.isEmpty()) {
+                Map<String, String> update = new HashMap<>();
+                update.put(deviceFunc, String.valueOf(deviceData));
 
-            jedisCommands.hmset(deviceId, update);
+                jedisCommands.hmset(deviceId, update);
+            }
             collector.ack(tuple);
         } catch (Exception e) {
             collector.reportError(e);

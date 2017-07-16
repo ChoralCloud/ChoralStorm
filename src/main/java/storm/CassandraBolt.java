@@ -56,7 +56,10 @@ public class CassandraBolt extends BaseRichBolt {
 
     public Cluster getCluster() {
         if (cluster == null || cluster.isClosed()) {
-            String cassandraHost = ChoralTopology.local ? "localhost" : ChoralTopology.psRemoteHost;
+            String cassandraHost;
+            if (ChoralTopology.local && !ChoralTopology.cluster) cassandraHost = "localhost";
+            else if (ChoralTopology.local && ChoralTopology.cluster) cassandraHost = "cassandra";
+            else cassandraHost = ChoralTopology.psRemoteHost;
             String[] contactPoints = new String[]{cassandraHost};
             cluster = Cluster.builder()
                     .addContactPoints(contactPoints)

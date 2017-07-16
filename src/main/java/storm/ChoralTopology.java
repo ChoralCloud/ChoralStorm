@@ -11,11 +11,12 @@ import org.apache.storm.topology.TopologyBuilder;
 public class ChoralTopology {
 
     public static boolean local = false;
+    public static boolean cluster = false;
     public static String psRemoteHost = "172.18.2.104";
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local]");
+            System.out.println("Usage: ChoralTopology <TOPIC_NAME> [local] [cluster]");
             return;
         }
 
@@ -24,12 +25,16 @@ public class ChoralTopology {
             local = args[1].equals("local");
         }
 
-        System.out.println("Topic: " + topicName + " on local: " + local);
+        if (args.length >= 3) {
+            cluster = args[2].equals("cluster");
+        }
+
+        System.out.println("Topic: " + topicName + " on local: " + local + " on cluster: " + cluster);
 
         //region Kafka spout creation
         KafkaSpout kafkaSpout = null;
         try {
-            String zookeeperHost = local ? "localhost:2181" : "zookeeper:2181";
+            String zookeeperHost = (local && !cluster) ? "localhost:2181" : "zookeeper:2181";
             BrokerHosts zooKeeperHosts = new ZkHosts(zookeeperHost);
             String spoutId = "choraldatastreamSpout";
             SpoutConfig spoutConfig = new SpoutConfig(zooKeeperHosts, topicName, "/" + topicName, spoutId);
@@ -44,7 +49,10 @@ public class ChoralTopology {
         //region Redis creation
         JedisPoolConfig poolConfig = null;
         try {
-            String redisHost = local ? "localhost" : psRemoteHost;
+            String redisHost;
+            if (ChoralTopology.local && !ChoralTopology.cluster) redisHost = "localhost";
+            else if (ChoralTopology.local && ChoralTopology.cluster) redisHost = "redis";
+            else redisHost = ChoralTopology.psRemoteHost;
             poolConfig = new JedisPoolConfig.Builder().setHost(redisHost).setPort(6379).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,21 +81,21 @@ public class ChoralTopology {
             topologyBuilder.setBolt("cassandraBolt", new CassandraBolt())
                     .shuffleGrouping("kafkaSpout");
             // choralAverageQuery emits tuple(device_id, device_function, device_value)
-            topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
-                    .shuffleGrouping("kafkaSpout");
+            // topologyBuilder.setBolt("choralAverageQueryBolt", new ChoralAverageQueryBolt())
+            //        .shuffleGrouping("kafkaSpout");
 
             // redisBolt emits tuple(device_id, device_data, device_timestamp)
             topologyBuilder.setBolt("redisBolt", new RedisBolt(poolConfig))
                     .shuffleGrouping("kafkaSpout");
             // redisAverageQueryBolt emits tuple(device_id, device_function, device_value)
-            topologyBuilder.setBolt("redisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
-                    .shuffleGrouping("choralAverageQueryBolt");
+            // topologyBuilder.setBolt("redisAverageQueryBolt", new RedisAverageQueryBolt(poolConfig))
+            //        .shuffleGrouping("choralAverageQueryBolt");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         //endregion
-        if (local) {
+        if (!cluster) {
             //region Local cluster
             try {
                 Config config = new Config();

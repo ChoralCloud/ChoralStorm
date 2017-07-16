@@ -41,7 +41,8 @@ Software requirements
     * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
 1. If running Storm remotely (need to submit topology):
     * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
-    * Submit topology `scripts/run.sh`
+    * Submit topology `scripts/run.sh --local`
+    * View topology: [http://localhost:8080](http://localhost:8080)
 
 ### Running the cluster remotely
 ![](/choralcluster.png)

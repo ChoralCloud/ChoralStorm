@@ -36,7 +36,8 @@ ENV PATH $PATH:/$DISTRO_NAME/bin
 ENV STORM_HOME=/$DISTRO_NAME
 
 RUN mkdir /topologies /scripts
-COPY scripts/storm-submit-topology.sh /scripts/storm-submit-topology.sh
+COPY scripts/local-storm-submit-topology.sh /scripts/local-storm-submit-topology.sh
+COPY scripts/remote-storm-submit-topology.sh /scripts/remote-storm-submit-topology.sh
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -14,6 +14,7 @@ services:
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=172.18.2.102:2888:3888 server.3=172.18.2.103:2888:3888
+
   kafka:
     container_name: kafka
     hostname: kafka

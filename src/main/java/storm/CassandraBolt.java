@@ -49,7 +49,7 @@ public class CassandraBolt extends BaseRichBolt {
             JsonObject deviceData = json.get("device_data").getAsJsonObject();
             Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
             if (!deviceId.isEmpty() && deviceData.entrySet().size() > 0 && deviceTimestamp.getTime() > 0) {
-                getSession().executeAsync(preparedStatement.bind(deviceId, deviceData, deviceTimestamp, new Timestamp(System.currentTimeMillis())));
+                getSession().executeAsync(preparedStatement.bind(deviceId, deviceData.toString(), deviceTimestamp, new Timestamp(System.currentTimeMillis())));
             }
             collector.ack(tuple);
         } catch (Exception e) {

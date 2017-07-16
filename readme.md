@@ -44,10 +44,11 @@ Software requirements
     * Submit topology `scripts/run.sh`
     * View topology: [http://localhost:8080](http://localhost:8080)
     
-    ####Notes
+    #### Notes
     - if you are developing and changing ChoralTopology.java, you need to resubmit the topology
         ```
-        scripts/rebuild.sh
+        docker exec nimbus storm kill ChoralTopology
+        scripts/run.sh
         ```
 
 ### Running the cluster remotely
@@ -62,6 +63,17 @@ Software requirements
     ```
 1. If service is not running, run the following script `scripts/restart_cluster.sh`
 1. Otherwise, submit topology `scripts/run.sh --remote`
+
+    #### Notes
+    - if you run into an issue where nimbus leader cannot be found, likely there is something wrong with zookeeper, one 
+    way to fix this is to delete all images on cluster 1, cluster 2, cluster 3, rebuild all of the images
+        ```
+        # for cluster X
+        systemctl stop choralclusterX.service
+        docker rmi $(docker images -q)
+        docker-compose -f clusterX.yml
+        systemctl start choralclusterX.service
+        ```
 
 At this point, ChoralStorm (Zookeeper, Kafka, Storm) + Cassandra + Redis should be set up and the cluster can now consume data.
 

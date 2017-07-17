@@ -38,7 +38,7 @@ Software requirements
 1. If running Storm with debugging:
     * Update pom.xml to `<provided.scope>compile</provided.scope>` under properties
     * Generate topology `mvn package`
-    * Run jar: `java -cp choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
+    * Run jar: `java -cp target/choralstorm-1.0-jar-with-dependencies.jar storm.ChoralTopology choraldatastream local`
 1. If running Storm without debugging:
     * Update pom.xml to `<provided.scope>provided</provided.scope>` under properties
     * Submit topology `scripts/run.sh`

@@ -43,14 +43,10 @@ public class RedisBolt extends AbstractRedisBolt {
             JsonObject deviceData = json.get("device_data").getAsJsonObject();
             Timestamp deviceTimestamp = new Timestamp(json.get("device_timestamp").getAsLong());
             if (!deviceId.isEmpty() && deviceData.entrySet().size() > 0 && deviceTimestamp.getTime() > 0) {
-                Set<Map.Entry<String, JsonElement>> entries = deviceData.entrySet();
-
                 Map<String, String> update = new HashMap<>();
 
-                entries.forEach(e -> {
-                    update.put(e.getKey(), e.getValue().getAsString());
-                    update.put("device_timestamp", String.valueOf(deviceTimestamp.getTime()));
-                });
+                update.put("device_data", deviceData.toString());
+                update.put("device_timestamp", String.valueOf(deviceTimestamp.getTime()));
 
                 jedisCommands.hmset(String.valueOf(deviceId), update);
                 jedis.publish(deviceId, jsonString);
